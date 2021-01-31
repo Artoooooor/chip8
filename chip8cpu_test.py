@@ -10,27 +10,77 @@ class CpuTest(unittest.TestCase):
         
 
     def test_00e0_clears_screen(self):
-        self.when_instruction_is(0x200,0x00e8)
+        self.when_instruction_is(0x200,0x00e0)
         self.when_memory_is_ones(0x1000 - 0x100, 256)
         self.cpu.tick()
         self.assertEqual(0x202,self.state.PC)
         self.assert_zeros(0x1000 - 0x100, 256)
 
-    
+    def test_00ee_pops_stack_to_pc_and_increments_by_2(self):
+        self.when_stack_is(0x300)
+        self.when_instruction_is(0x200,0xee)
+        self.cpu.tick()
+        self.assertEqual(0x302, self.state.PC)
+        self.assertEqual(0x00, self.state.SP)
+
+    def test_0nnn_except_00ee_and_00e0_is_ignored(self):
+        for i in range(0x000,0x1000):
+            if i != 0x00ee and i != 0x00e0:
+                self.when_stack_is(0x2)
+                self.when_instruction_is(0x200,i)
+                self.when_pc_is(0x200)
+                self.when_memory_is_ones(0x1000 - 0x100, 256)
+                self.cpu.tick()
+                self.assertEqual(0x202,self.state.PC)
+                self.assert_ones(0x1000 - 0x100, 256)
+
+    def test_1ABC_jumps_to_ABC(self):
+        self.when_instruction_is(0x200,0x1ABC)
+        self.cpu.tick()
+        self.assertEqual(0xABC, self.state.PC)
+
+    def test_2ABC_pushes_PC_and_jumps_to_ABC(self):
+        self.when_instruction_is(0x200,0x2ABC)
+        self.cpu.tick()
+        self.assertEqual(0xABC, self.state.PC)
+        self.assert_stack(0x200)
+
+    def test_3ABC_skips_instruction_if_rA_contains_BC(self):
+        self.when_instruction_is(0x200,0x3ABC)
+        self.when_register_is(0xA,0xBC)
+        self.cpu.tick()
+        self.assertEqual(0x204,self.state.PC)
 
     def when_instruction_is(self, address, instruction):
-        self.state.memory[address]=instruction & 0xff;
-        self.state.memory[address+1]=(instruction >> 8) & 0xff;
+        self.state.memory[address+1]=instruction & 0xff;
+        self.state.memory[address]=(instruction >> 8) & 0xff;
 
     def when_memory_is_ones(self, start, length):
-        for i in range(length):
-            self.state.memory[start + i] = 0x01
+        self.state.memory[start:start+length] = [0x01] * length
+
+    def when_stack_is(self, *numbers):
+        for i,element in enumerate(numbers):
+            self.state.stack[i]=element
+        self.state.SP=len(numbers)
+
+    def when_pc_is(self, pc):
+        self.state.PC = pc
+
+    def when_register_is(self,register,value):
+        self.state.registers[register]=value
 
     def assert_zeros(self, start, length):
-        for i in range(length):
-            self.assertEqual(self.state.memory[start + i],0,'Zero on {}'.format(start + i))
+        for b in self.state.memory[start:start+length]:
+            self.assertEqual(b,0)
 
+    def assert_ones(self, start, length):
+        for b in self.state.memory[start:start+length]:
+            self.assertEqual(b,1)
 
+    def assert_stack(self, *expected):
+        for i,element in enumerate(expected):
+            self.assertEqual(self.state.stack[i],element)
+        self.assertEqual(self.state.SP,len(expected))
 
 if __name__ == '__main__':
     unittest.main()
