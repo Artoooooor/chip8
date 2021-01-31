@@ -6,8 +6,10 @@ class CpuTest(unittest.TestCase):
 
     def setUp(self):
         self.state = Chip8State()
-        self.cpu = Chip8Cpu(self.state)
+        self.cpu = Chip8Cpu(self.state, self.get_random_mock)
         
+    def get_random_mock(self):
+        return self.random_mock_number
 
     def test_00e0_clears_screen(self):
         self.when_instruction_is(0x200,0x00e0)
@@ -236,6 +238,18 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0xbcf, self.state.PC)
 
+    def test_caff_sets_ra_to_random(self):
+        self.when_instruction_is(0x200, 0xcaff)
+        self.when_random_number_is(0x2a)
+        self.cpu.tick()
+        self.assertEqual(0x2a,self.state.registers[0xa])
+
+    def test_cafe_sets_ra_to_random_masked_by_fe(self):
+        self.when_instruction_is(0x200, 0xcafe)
+        self.when_random_number_is(0x2b)
+        self.cpu.tick()
+        self.assertEqual(0x2a,self.state.registers[0xa])
+
     def when_instruction_is(self, address, instruction):
         self.state.memory[address+1]=instruction & 0xff;
         self.state.memory[address]=(instruction >> 8) & 0xff;
@@ -253,6 +267,9 @@ class CpuTest(unittest.TestCase):
 
     def when_register_is(self,register,value):
         self.state.registers[register]=value
+
+    def when_random_number_is(self, number):
+        self.random_mock_number = number
 
     def assert_zeros(self, start, length):
         for b in self.state.memory[start:start+length]:

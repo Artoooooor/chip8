@@ -8,8 +8,9 @@ class Chip8State:
         self.I = 0
 
 class Chip8Cpu:
-    def __init__(self,state):
+    def __init__(self,state, rng):
         self.state=state
+        self.rng = rng
 
     def tick(self):
         instruction = (self.state.memory[self.state.PC] << 8) + self.state.memory[self.state.PC+1]
@@ -91,6 +92,10 @@ class Chip8Cpu:
             self.state.I = instruction & 0x0fff
         elif instruction & 0xf000 == 0xb000:
             self.state.PC = (instruction & 0x0fff) + self.state.registers[0x0] - 2
+        elif instruction & 0xf000 == 0xc000:
+            register = (instruction & 0x0f00) >> 0x08;
+            mask = instruction & 0x00ff
+            self.state.registers[register] = self.rng() & mask
         self.state.PC += 2
 
     def push(self, number):
