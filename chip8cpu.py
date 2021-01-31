@@ -6,6 +6,8 @@ class Chip8State:
         self.SP = 0x00
         self.registers = bytearray(0x10)
         self.I = 0
+        self.screen_buffer_length = 0x100
+        self.screen_buffer_start = 0x1000 - self.screen_buffer_length
 
 class Chip8Cpu:
     def __init__(self,state, rng):

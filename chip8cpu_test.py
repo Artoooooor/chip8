@@ -13,10 +13,10 @@ class CpuTest(unittest.TestCase):
 
     def test_00e0_clears_screen(self):
         self.when_instruction_is(0x200,0x00e0)
-        self.when_memory_is_ones(0x1000 - 0x100, 256)
+        self.when_memory_is_ones(self.state.screen_buffer_start, self.state.screen_buffer_length)
         self.cpu.tick()
         self.assertEqual(0x202,self.state.PC)
-        self.assert_zeros(0x1000 - 0x100, 256)
+        self.assert_zeros(self.state.screen_buffer_start, self.state.screen_buffer_length)
 
     def test_00ee_pops_stack_to_pc_and_increments_by_2(self):
         self.when_stack_is(0x300)
@@ -31,10 +31,10 @@ class CpuTest(unittest.TestCase):
                 self.when_stack_is(0x2)
                 self.when_instruction_is(0x200,i)
                 self.when_pc_is(0x200)
-                self.when_memory_is_ones(0x1000 - 0x100, 256)
+                self.when_memory_is_ones(self.state.screen_buffer_start, self.state.screen_buffer_length)
                 self.cpu.tick()
                 self.assertEqual(0x202,self.state.PC)
-                self.assert_ones(0x1000 - 0x100, 256)
+                self.assert_ones(self.state.screen_buffer_start, self.state.screen_buffer_length)
 
     def test_1ABC_jumps_to_ABC(self):
         self.when_instruction_is(0x200,0x1ABC)
@@ -250,9 +250,20 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x2a,self.state.registers[0xa])
 
+    def test_d000_draws_nothing(self):
+        self.when_instruction_is(0x200, 0xd000)
+        self.when_I_is(0x400)
+        self.when_memory_is(0x400,0xff)
+        self.cpu.tick()
+        self.assert_memory_value(self.state.screen_buffer_start,0x00)
+
+
     def when_instruction_is(self, address, instruction):
-        self.state.memory[address+1]=instruction & 0xff;
-        self.state.memory[address]=(instruction >> 8) & 0xff;
+        self.when_memory_is(address+1,instruction & 0xff)
+        self.when_memory_is(address,(instruction >> 8) & 0xff)
+
+    def when_memory_is(self, address, value):
+        self.state.memory[address] = value
 
     def when_memory_is_ones(self, start, length):
         self.state.memory[start:start+length] = [0x01] * length
@@ -264,6 +275,9 @@ class CpuTest(unittest.TestCase):
 
     def when_pc_is(self, pc):
         self.state.PC = pc
+
+    def when_I_is(self, i):
+        self.state.I = i
 
     def when_register_is(self,register,value):
         self.state.registers[register]=value
@@ -283,6 +297,9 @@ class CpuTest(unittest.TestCase):
         for i,element in enumerate(expected):
             self.assertEqual(self.state.stack[i],element)
         self.assertEqual(self.state.SP,len(expected))
+
+    def assert_memory_value(self, address, value):
+        self.assertEqual(value, self.state.memory[address])
 
 if __name__ == '__main__':
     unittest.main()
