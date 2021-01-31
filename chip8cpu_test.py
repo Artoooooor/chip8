@@ -271,6 +271,23 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_memory_column(self.state.screen_buffer_start, 0x01, 0x02)
 
+    def test_d102_draws_sprite_x_shifted(self):
+        self.when_instruction_is(0x200, 0xd102)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x08)
+        self.when_memory_is(0x400, 0x01, 0x02)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start + 0x01, 0x01, 0x02)
+
+    def test_d122_draws_sprite_y_shifted(self):
+        self.when_instruction_is(0x200, 0xd122)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x00)
+        self.when_register_is(0x2, 0x02)
+        self.when_memory_is(0x400, 0x01, 0x02)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start + 0x10 , 0x01, 0x02)
+
 
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
