@@ -101,8 +101,9 @@ class Chip8Cpu:
         elif instruction & 0xf000 == 0xd000:
             register1 = (instruction & 0x0f00) >> 0x08;
             register2 = (instruction & 0x00f0) >> 0x04;
+            x = self.state.registers[register1] & 0x3f
             height = instruction & 0x000f
-            start = self.state.screen_buffer_start + (self.state.registers[register1] >> 3) + (self.state.registers[register2] << 3)
+            start = self.state.screen_buffer_start + (x >> 3) + (self.state.registers[register2] << 3)
             for i in range(height):
                 self.state.memory[start +(i << 3)] = self.state.memory[self.state.I + i]
         self.state.PC += 2
