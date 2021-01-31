@@ -296,6 +296,15 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_memory_column(self.state.screen_buffer_start + 0x01, 0x01, 0x02)
 
+    def test_d122_draws_sprite_y_shifted_bigger_than_32(self):
+        self.when_instruction_is(0x200, 0xd122)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x00)
+        self.when_register_is(0x2, 0x42)
+        self.when_memory_is(0x400, 0x01, 0x02)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start + 0x10 , 0x01, 0x02)
+
     #x >= 64
     #y >= 32
     #x not divisible by 8
