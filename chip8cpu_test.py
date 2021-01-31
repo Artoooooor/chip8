@@ -190,6 +190,20 @@ class CpuTest(unittest.TestCase):
         self.assertEqual(0x0e,self.state.registers[0xC])
         self.assertEqual(0x01,self.state.registers[0xF])
 
+    def test_8cbe_sets_rC_to_rB_lshift_1_and_rF_to_MSB_0(self):
+        self.when_instruction_is(0x200, 0x8CBe)
+        self.when_register_is(0xB,0x03)
+        self.cpu.tick()
+        self.assertEqual(0x06,self.state.registers[0xC])
+        self.assertEqual(0x00,self.state.registers[0xF])
+    
+    def test_8cbe_sets_rC_to_rB_lshift_1_and_rF_to_MSB_1(self):
+        self.when_instruction_is(0x200, 0x8CBe)
+        self.when_register_is(0xB,0x81)
+        self.cpu.tick()
+        self.assertEqual(0x02,self.state.registers[0xC])
+        self.assertEqual(0x01,self.state.registers[0xF])
+
     def when_instruction_is(self, address, instruction):
         self.state.memory[address+1]=instruction & 0xff;
         self.state.memory[address]=(instruction >> 8) & 0xff;
