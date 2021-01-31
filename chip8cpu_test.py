@@ -69,6 +69,27 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x204,self.state.PC)
 
+    def test_5AB0_skips_instruction_if_rA_equals_rB(self):
+        self.when_instruction_is(0x200,0x5AB0)
+        self.when_register_is(0xA,0x12)
+        self.when_register_is(0xB,0x12)
+        self.cpu.tick()
+        self.assertEqual(0x204,self.state.PC)
+
+    def test_5AB0_does_not_skip_instruction_if_rA_differs_rB(self):
+        self.when_instruction_is(0x200,0x5AB0)
+        self.when_register_is(0xA,0x12)
+        self.when_register_is(0xB,0x13)
+        self.cpu.tick()
+        self.assertEqual(0x202,self.state.PC)
+
+    def test_5AB1_is_ignored(self):
+        self.when_instruction_is(0x200,0x5AB1)
+        self.when_register_is(0xA,0x12)
+        self.when_register_is(0xB,0x12)
+        self.cpu.tick()
+        self.assertEqual(0x202,self.state.PC)
+        
 
     def when_instruction_is(self, address, instruction):
         self.state.memory[address+1]=instruction & 0xff;
