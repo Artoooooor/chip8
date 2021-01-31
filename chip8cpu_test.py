@@ -305,9 +305,17 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_memory_column(self.state.screen_buffer_start + 0x10 , 0x01, 0x02)
 
-    #x >= 64
-    #y >= 32
+    def test_d124_draws_sprite_y_shifted_partially_visible(self):
+        self.when_instruction_is(0x200, 0xd124)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x00)
+        self.when_register_is(0x2, 0x1e)
+        self.when_memory_is(0x400, 0x01, 0x02, 0x03, 0x04)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start + (0x1e << 3) , 0x01, 0x02)
+
     #x not divisible by 8
+    #x not divisible by 8 and partially visible
 
 
     def when_instruction_is(self, address, instruction):

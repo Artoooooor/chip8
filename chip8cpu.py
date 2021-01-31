@@ -103,7 +103,7 @@ class Chip8Cpu:
             register2 = (instruction & 0x00f0) >> 0x04;
             x = self.state.registers[register1] & 0x3f
             y = self.state.registers[register2] & 0x1f
-            height = instruction & 0x000f
+            height = min(instruction & 0x000f, 0x20 - y)
             start = self.state.screen_buffer_start + (x >> 3) + (y << 3)
             for i in range(height):
                 self.state.memory[start +(i << 3)] = self.state.memory[self.state.I + i]
