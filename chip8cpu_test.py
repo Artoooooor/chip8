@@ -230,6 +230,12 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0xbcd, self.state.I)
 
+    def test_bbcd_jumps_to_bcd_plus_r0(self):
+        self.when_instruction_is(0x200, 0xbbcd)
+        self.when_register_is(0x0,0x02)
+        self.cpu.tick()
+        self.assertEqual(0xbcf, self.state.PC)
+
     def when_instruction_is(self, address, instruction):
         self.state.memory[address+1]=instruction & 0xff;
         self.state.memory[address]=(instruction >> 8) & 0xff;

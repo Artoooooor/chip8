@@ -89,6 +89,8 @@ class Chip8Cpu:
                 self.state.PC += 2
         elif instruction & 0xf000 == 0xa000:
             self.state.I = instruction & 0x0fff
+        elif instruction & 0xf000 == 0xb000:
+            self.state.PC = (instruction & 0x0fff) + self.state.registers[0x0] - 2
         self.state.PC += 2
 
     def push(self, number):
