@@ -225,6 +225,11 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x202, self.state.PC)
 
+    def test_abcd_stores_bcd_in_i(self):
+        self.when_instruction_is(0x200, 0xabcd)
+        self.cpu.tick()
+        self.assertEqual(0xbcd, self.state.I)
+
     def when_instruction_is(self, address, instruction):
         self.state.memory[address+1]=instruction & 0xff;
         self.state.memory[address]=(instruction >> 8) & 0xff;

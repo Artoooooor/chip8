@@ -5,6 +5,7 @@ class Chip8State:
         self.stack = [0 for _ in range(20)]
         self.SP = 0x00
         self.registers = bytearray(0x10)
+        self.I = 0
 
 class Chip8Cpu:
     def __init__(self,state):
@@ -86,6 +87,8 @@ class Chip8Cpu:
             register2 = (instruction & 0x00f0) >> 0x04;
             if self.state.registers[register1] != self.state.registers[register2]:
                 self.state.PC += 2
+        elif instruction & 0xf000 == 0xa000:
+            self.state.I = instruction & 0x0fff
         self.state.PC += 2
 
     def push(self, number):
