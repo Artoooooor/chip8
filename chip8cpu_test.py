@@ -113,6 +113,13 @@ class CpuTest(unittest.TestCase):
         self.when_register_is(0xC,0x03)
         self.cpu.tick()
         self.assertEqual(0x07,self.state.registers[0xC])
+    
+    def test_8cb2_sets_rC_to_rC_and_rB(self):
+        self.when_instruction_is(0x200,0x8CB2)
+        self.when_register_is(0xB,0x06)
+        self.when_register_is(0xC,0x03)
+        self.cpu.tick()
+        self.assertEqual(0x02,self.state.registers[0xC])
         
 
     def when_instruction_is(self, address, instruction):
