@@ -128,6 +128,22 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x05,self.state.registers[0xC])
 
+    def test_8cb4_adds_rB_to_rC_and_sets_rF_to_1_if_carry_occurs(self):
+        self.when_instruction_is(0x200,0x8CB4)
+        self.when_register_is(0xB,0xfe)
+        self.when_register_is(0xC,0x03)
+        self.cpu.tick()
+        self.assertEqual(0x01,self.state.registers[0xC])
+        self.assertEqual(0x01,self.state.registers[0xF])
+    
+    def test_8cb4_adds_rB_to_rC_and_sets_rF_to_0_if_carry_does_not_occur(self):
+        self.when_instruction_is(0x200,0x8CB4)
+        self.when_register_is(0xB,0xf0)
+        self.when_register_is(0xC,0x03)
+        self.cpu.tick()
+        self.assertEqual(0xf3,self.state.registers[0xC])
+        self.assertEqual(0x00,self.state.registers[0xF])
+
     def when_instruction_is(self, address, instruction):
         self.state.memory[address+1]=instruction & 0xff;
         self.state.memory[address]=(instruction >> 8) & 0xff;
