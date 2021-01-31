@@ -204,6 +204,27 @@ class CpuTest(unittest.TestCase):
         self.assertEqual(0x02,self.state.registers[0xC])
         self.assertEqual(0x01,self.state.registers[0xF])
 
+    def test_9cb0_skips_instruction_if_ra_differs_from_rb(self):
+        self.when_instruction_is(0x200, 0x9cb0)
+        self.when_register_is(0xB,0x81)
+        self.when_register_is(0xC,0x82)
+        self.cpu.tick()
+        self.assertEqual(0x204,self.state.PC)
+
+    def test_9cb0_does_not_skip_instruction_if_ra_equals_rb(self):
+        self.when_instruction_is(0x200, 0x9cb0)
+        self.when_register_is(0xB, 0x81)
+        self.when_register_is(0xC, 0x81)
+        self.cpu.tick()
+        self.assertEqual(0x202, self.state.PC)
+
+    def test_9cb1_is_ignored(self):
+        self.when_instruction_is(0x200, 0x9cb1)
+        self.when_register_is(0xB, 0x81)
+        self.when_register_is(0xC, 0x82)
+        self.cpu.tick()
+        self.assertEqual(0x202, self.state.PC)
+
     def when_instruction_is(self, address, instruction):
         self.state.memory[address+1]=instruction & 0xff;
         self.state.memory[address]=(instruction >> 8) & 0xff;
