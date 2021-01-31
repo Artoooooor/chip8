@@ -98,6 +98,12 @@ class Chip8Cpu:
             register = (instruction & 0x0f00) >> 0x08;
             mask = instruction & 0x00ff
             self.state.registers[register] = self.rng() & mask
+        elif instruction & 0xf000 == 0xd000:
+            register1 = (instruction & 0x0f00) >> 0x08;
+            register2 = (instruction & 0x00f0) >> 0x04;
+            height = instruction & 0x000f
+            for i in range(height):
+                self.state.memory[self.state.screen_buffer_start + 0x08 * i] = self.state.memory[self.state.I + i]
         self.state.PC += 2
 
     def push(self, number):

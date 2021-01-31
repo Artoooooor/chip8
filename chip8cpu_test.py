@@ -257,13 +257,26 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_memory_value(self.state.screen_buffer_start,0x00)
 
+    def test_d001_draws_one_byte(self):
+        self.when_instruction_is(0x200, 0xd001)
+        self.when_I_is(0x400)
+        self.when_memory_is(0x400,0x01)
+        self.cpu.tick()
+        self.assert_memory_value(self.state.screen_buffer_start,0x01)
+
+    def test_d002_draws_two_lines(self):
+        self.when_instruction_is(0x200, 0xd002)
+        self.when_I_is(0x400)
+        self.when_memory_is(0x400,0x01,0x02)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start, 0x01, 0x02)
+
 
     def when_instruction_is(self, address, instruction):
-        self.when_memory_is(address+1,instruction & 0xff)
-        self.when_memory_is(address,(instruction >> 8) & 0xff)
+        self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
 
-    def when_memory_is(self, address, value):
-        self.state.memory[address] = value
+    def when_memory_is(self, address, *values):
+        self.state.memory[address:address+len(values)] = values
 
     def when_memory_is_ones(self, start, length):
         self.state.memory[start:start+length] = [0x01] * length
@@ -298,8 +311,13 @@ class CpuTest(unittest.TestCase):
             self.assertEqual(self.state.stack[i],element)
         self.assertEqual(self.state.SP,len(expected))
 
-    def assert_memory_value(self, address, value):
-        self.assertEqual(value, self.state.memory[address])
+    def assert_memory_value(self, address, *values):
+        for i,value in enumerate(values):
+            self.assertEqual(value, self.state.memory[address+i])
+
+    def assert_memory_column(self, address, *values):
+        for i,value in enumerate(values):
+            self.assertEqual(value, self.state.memory[address + i * 0x008])
 
 if __name__ == '__main__':
     unittest.main()
