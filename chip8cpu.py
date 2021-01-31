@@ -68,6 +68,9 @@ class Chip8Cpu:
                 else:
                     self.state.registers[0xf] = 0x01
                 self.state.registers[register1] = result
+            elif instruction & 0x000f == 0x6:
+                self.state.registers[register1] = self.state.registers[register2] >> 1
+                self.state.registers[0xf] = self.state.registers[register2] & 0x01
         self.state.PC += 2
 
     def push(self, number):
