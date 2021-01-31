@@ -107,11 +107,12 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x17,self.state.registers[0xC])
     
-    def test_8cb1_is_ignored(self):
+    def test_8cb1_sets_rC_to_rC_or_rB(self):
         self.when_instruction_is(0x200,0x8CB1)
-        self.when_register_is(0xB,0x17)
+        self.when_register_is(0xB,0x06)
+        self.when_register_is(0xC,0x03)
         self.cpu.tick()
-        self.assertEqual(0x00,self.state.registers[0xC])
+        self.assertEqual(0x07,self.state.registers[0xC])
         
 
     def when_instruction_is(self, address, instruction):
