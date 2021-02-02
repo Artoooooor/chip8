@@ -314,8 +314,30 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_memory_column(self.state.screen_buffer_start + (0x1e << 3) , 0x01, 0x02)
 
-    #x not divisible by 8
-    #x not divisible by 8 and partially visible
+    def test_d122_draws_sprite_x_not_divisible_by_8(self):
+        self.when_instruction_is(0x200, 0xd122)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x03)
+        self.when_register_is(0x2, 0x00)
+        self.when_memory_is(0x400, 0xff, 0xaf)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start, 0xff >> 3, 0xaf >> 3)
+        self.assert_memory_column(self.state.screen_buffer_start + 1, (0xff << 5) & 0xff, (0xaf << 5)& 0xff)
+
+    def test_d122_draws_sprite_x_not_divisible_by_8_partially_visible(self):
+        self.when_instruction_is(0x200, 0xd122)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x3f)
+        self.when_register_is(0x2, 0x00)
+        self.when_memory_is(0x400, 0xff, 0xff)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start+0x07, 0x01, 0x01)
+        self.assert_memory_column(self.state.screen_buffer_start, *[0x00]*32)
+
+    #TODO:
+    #change any 1 to 0 - x divisible by 8
+    #change any 1 to 0 - x not divisible by 8
+    #change any 1 to 0 on first row - does it draw others?
 
 
     def when_instruction_is(self, address, instruction):
