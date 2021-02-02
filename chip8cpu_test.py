@@ -413,6 +413,12 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x2a,self.state.DT)
 
+    def test_fa18_sets_st_to_ra(self):
+        self.when_instruction_is(0x200, 0xfa18)
+        self.when_register_is(0xa,0x2a)
+        self.cpu.tick()
+        self.assertEqual(0x2a,self.state.ST)
+
 
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)

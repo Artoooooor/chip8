@@ -4,6 +4,7 @@ class Chip8State:
         self.PC = 0x200
         self.SP = 0x00
         self.DT = 0x00
+        self.ST = 0x00
         self.stack = [0 for _ in range(20)]
         self.registers = bytearray(0x10)
         self.I = 0
@@ -135,6 +136,8 @@ class Chip8Cpu:
                     return
             elif mode == 0x15:
                 self.state.DT = self.state.registers[register]
+            elif mode == 0x18:
+                self.state.ST = self.state.registers[register]
         self.state.PC += 2
 
     def push(self, number):
