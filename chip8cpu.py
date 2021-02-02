@@ -125,8 +125,14 @@ class Chip8Cpu:
             elif mode == 0xa1 and not self.state.keys[key]:
                 self.state.PC += 2
         elif instruction & 0xf000 == 0xf000:
+            mode = instruction & 0x00ff
             register = (instruction & 0x0f00) >> 8
-            self.state.registers[register] = self.state.DT
+            if mode == 0x07:
+                self.state.registers[register] = self.state.DT
+            elif mode == 0x0a:
+                key = self.state.registers[register]
+                if not self.state.keys[key]:
+                    return
         self.state.PC += 2
 
     def push(self, number):
