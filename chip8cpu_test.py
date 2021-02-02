@@ -387,6 +387,12 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x202,self.state.PC)
 
+    def test_fa07_sets_ra_to_dt(self):
+        self.when_instruction_is(0x200, 0xfa07)
+        self.when_dt_is(0x2a)
+        self.cpu.tick()
+        self.assertEqual(0x2a,self.state.registers[0xa])
+
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
 
@@ -403,6 +409,9 @@ class CpuTest(unittest.TestCase):
 
     def when_pc_is(self, pc):
         self.state.PC = pc
+
+    def when_dt_is(self, dt):
+        self.state.DT = dt
 
     def when_I_is(self, i):
         self.state.I = i

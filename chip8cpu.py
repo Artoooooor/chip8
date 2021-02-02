@@ -2,8 +2,9 @@ class Chip8State:
     def __init__(self):
         self.memory = bytearray(0x1000)
         self.PC = 0x200
-        self.stack = [0 for _ in range(20)]
         self.SP = 0x00
+        self.DT = 0x00
+        self.stack = [0 for _ in range(20)]
         self.registers = bytearray(0x10)
         self.I = 0
         self.screen_buffer_length = 0x100
@@ -123,6 +124,9 @@ class Chip8Cpu:
                 self.state.PC += 2
             elif mode == 0xa1 and not self.state.keys[key]:
                 self.state.PC += 2
+        elif instruction & 0xf000 == 0xf000:
+            register = (instruction & 0x0f00) >> 8
+            self.state.registers[register] = self.state.DT
         self.state.PC += 2
 
     def push(self, number):
