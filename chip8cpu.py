@@ -138,6 +138,8 @@ class Chip8Cpu:
                 self.state.DT = self.state.registers[register]
             elif mode == 0x18:
                 self.state.ST = self.state.registers[register]
+            elif mode == 0x1e:
+                self.state.I += self.state.registers[register]
         self.state.PC += 2
 
     def push(self, number):
