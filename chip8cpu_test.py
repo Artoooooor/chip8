@@ -426,6 +426,14 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x14d,self.state.I)
 
+    def test_fa29_sets_I_to_sprite_from_ra(self):
+        self.when_instruction_is(0x200, 0xfa29)
+        self.when_register_is(0xa,0x04)
+        self.cpu.tick()
+        self.assertEqual(0x04 * 5,self.state.I)
+
+    
+
 
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
