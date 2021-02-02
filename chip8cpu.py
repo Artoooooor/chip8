@@ -133,6 +133,8 @@ class Chip8Cpu:
                 key = self.state.registers[register]
                 if not self.state.keys[key]:
                     return
+            elif mode == 0x15:
+                self.state.DT = self.state.registers[register]
         self.state.PC += 2
 
     def push(self, number):
