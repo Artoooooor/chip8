@@ -118,7 +118,10 @@ class Chip8Cpu:
         elif instruction & 0xf000 == 0xe000:
             register = (instruction & 0x0f00) >> 8
             key = self.state.registers[register]
-            if self.state.keys[key]:
+            mode = instruction & 0x00ff
+            if mode == 0x9e and self.state.keys[key]:
+                self.state.PC += 2
+            elif mode == 0xa1 and not self.state.keys[key]:
                 self.state.PC += 2
         self.state.PC += 2
 

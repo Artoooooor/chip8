@@ -373,6 +373,20 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x202,self.state.PC)
 
+    def test_eaa1_skips_instruction_if_key_from_ra_is_not_pressed(self):
+        self.when_instruction_is(0x200, 0xeaa1)
+        self.when_register_is(0xa,0x01)
+        self.when_key_is_not_pressed(0x1)
+        self.cpu.tick()
+        self.assertEqual(0x204,self.state.PC)
+        
+    def test_eaa1_does_not_skip_instruction_if_key_from_ra_is_pressed(self):
+        self.when_instruction_is(0x200, 0xeaa1)
+        self.when_register_is(0xa,0x01)
+        self.when_key_is_pressed(0x1)
+        self.cpu.tick()
+        self.assertEqual(0x202,self.state.PC)
+
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
 
