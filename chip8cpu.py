@@ -103,14 +103,17 @@ class Chip8Cpu:
             register2 = (instruction & 0x00f0) >> 0x04;
             x = self.state.registers[register1] & 0x3f
             y = self.state.registers[register2] & 0x1f
-            byte_in_row = x >> 3;
+            x_byte_shift = x >> 3;
+            y_byte_shift = y << 3;
             shift_in_byte = x & 0x07;
             height = min(instruction & 0x000f, 0x20 - y)
-            start = self.state.screen_buffer_start + byte_in_row + (y << 3)
+            start = self.state.screen_buffer_start + x_byte_shift + y_byte_shift
             for i in range(height):
-                self.state.memory[start + (i << 3)] = self.state.memory[self.state.I + i] >> shift_in_byte
+                sprite_byte=self.state.memory[self.state.I + i]
+                row_byte_shift = i << 3
+                self.draw_byte(start + row_byte_shift, sprite_byte >> shift_in_byte)
                 if x < 0x3f:
-                    self.state.memory[start + (i << 3) + 1] = (self.state.memory[self.state.I + i] << (8-shift_in_byte)) & 0xff
+                    self.draw_byte(start + row_byte_shift + 1, sprite_byte << (8-shift_in_byte) & 0xff)
         self.state.PC += 2
 
     def push(self, number):
@@ -121,3 +124,8 @@ class Chip8Cpu:
         number = self.state.stack[self.state.SP-1]
         self.state.SP -= 1
         return number
+
+    def draw_byte(self,address,byte):
+        self.state.memory[address] = self.state.memory[address] ^ byte
+        if self.state.memory[address] != byte:
+            self.state.registers[0xf] = 0x01

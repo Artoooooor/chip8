@@ -255,14 +255,16 @@ class CpuTest(unittest.TestCase):
         self.when_I_is(0x400)
         self.when_memory_is(0x400,0xff)
         self.cpu.tick()
-        self.assert_memory_value(self.state.screen_buffer_start,0x00)
+        self.assert_memory_column(self.state.screen_buffer_start,0x00)
+        self.assertEqual(0x00,self.state.registers[0xf])
 
     def test_d001_draws_one_byte(self):
         self.when_instruction_is(0x200, 0xd001)
         self.when_I_is(0x400)
         self.when_memory_is(0x400,0x01)
         self.cpu.tick()
-        self.assert_memory_value(self.state.screen_buffer_start,0x01)
+        self.assert_memory_column(self.state.screen_buffer_start,0x01)
+        self.assertEqual(0x00,self.state.registers[0xf])
 
     def test_d002_draws_two_lines(self):
         self.when_instruction_is(0x200, 0xd002)
@@ -334,10 +336,28 @@ class CpuTest(unittest.TestCase):
         self.assert_memory_column(self.state.screen_buffer_start+0x07, 0x01, 0x01)
         self.assert_memory_column(self.state.screen_buffer_start, *[0x00]*32)
 
-    #TODO:
-    #change any 1 to 0 - x divisible by 8
-    #change any 1 to 0 - x not divisible by 8
-    #change any 1 to 0 on first row - does it draw others?
+    def test_d121_sets_rf_to_1_if_1_is_changed_to_0(self):
+        self.when_instruction_is(0x200, 0xd121)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x00)
+        self.when_register_is(0x2, 0x00)
+        self.when_memory_is(0x400, 0xff)
+        self.when_memory_is(self.state.screen_buffer_start, 0x01)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start, 0xfe)
+        self.assertEqual(0x01,self.state.registers[0xf]);
+
+    def test_d121_sets_rf_to_1_if_1_is_changed_to_0_x_not_divisible_by_8(self):
+        self.when_instruction_is(0x200, 0xd121)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x04)
+        self.when_register_is(0x2, 0x00)
+        self.when_memory_is(0x400, 0xff)
+        self.when_memory_is(self.state.screen_buffer_start, 0x01,0x80)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start, 0x0e)
+        self.assert_memory_column(self.state.screen_buffer_start+1, 0x70)
+        self.assertEqual(0x01,self.state.registers[0xf]);
 
 
     def when_instruction_is(self, address, instruction):
