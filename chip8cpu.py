@@ -8,6 +8,7 @@ class Chip8State:
         self.I = 0
         self.screen_buffer_length = 0x100
         self.screen_buffer_start = 0x1000 - self.screen_buffer_length
+        self.keys = [False] * 16
 
 class Chip8Cpu:
     def __init__(self,state, rng):
@@ -114,6 +115,11 @@ class Chip8Cpu:
                 self.draw_byte(start + row_byte_shift, sprite_byte >> shift_in_byte)
                 if x < 0x3f:
                     self.draw_byte(start + row_byte_shift + 1, sprite_byte << (8-shift_in_byte) & 0xff)
+        elif instruction & 0xf000 == 0xe000:
+            register = (instruction & 0x0f00) >> 8
+            key = self.state.registers[register]
+            if self.state.keys[key]:
+                self.state.PC += 2
         self.state.PC += 2
 
     def push(self, number):

@@ -359,6 +359,19 @@ class CpuTest(unittest.TestCase):
         self.assert_memory_column(self.state.screen_buffer_start+1, 0x70)
         self.assertEqual(0x01,self.state.registers[0xf]);
 
+    def test_ea9e_skips_instruction_if_key_from_ra_is_pressed(self):
+        self.when_instruction_is(0x200, 0xea9e)
+        self.when_register_is(0xa,0x01)
+        self.when_key_is_pressed(0x1)
+        self.cpu.tick()
+        self.assertEqual(0x204,self.state.PC)
+
+    def test_ea9e_does_not_skip_instruction_if_key_from_ra_is_not_pressed(self):
+        self.when_instruction_is(0x200, 0xea9e)
+        self.when_register_is(0xa,0x01)
+        self.when_key_is_not_pressed(0x1)
+        self.cpu.tick()
+        self.assertEqual(0x202,self.state.PC)
 
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
@@ -385,6 +398,12 @@ class CpuTest(unittest.TestCase):
 
     def when_random_number_is(self, number):
         self.random_mock_number = number
+
+    def when_key_is_pressed(self, key):
+        self.state.keys[key] = True
+
+    def when_key_is_not_pressed(self, key):
+        self.state.keys[key] = False
 
     def assert_zeros(self, start, length):
         for b in self.state.memory[start:start+length]:
