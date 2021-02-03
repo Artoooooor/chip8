@@ -104,21 +104,7 @@ class Chip8Cpu:
             mask = instruction & 0x00ff
             self.state.registers[register] = self.rng() & mask
         elif instruction & 0xf000 == 0xd000:
-            register1 = (instruction & 0x0f00) >> 0x08;
-            register2 = (instruction & 0x00f0) >> 0x04;
-            x = self.state.registers[register1] & 0x3f
-            y = self.state.registers[register2] & 0x1f
-            x_byte_shift = x >> 3;
-            y_byte_shift = y << 3;
-            shift_in_byte = x & 0x07;
-            height = min(instruction & 0x000f, 0x20 - y)
-            start = self.state.screen_buffer_start + x_byte_shift + y_byte_shift
-            for i in range(height):
-                sprite_byte=self.state.memory[self.state.I + i]
-                row_byte_shift = i << 3
-                self.draw_byte(start + row_byte_shift, sprite_byte >> shift_in_byte)
-                if x < 0x3f:
-                    self.draw_byte(start + row_byte_shift + 1, sprite_byte << (8-shift_in_byte) & 0xff)
+            self.draw(instruction)
         elif instruction & 0xf000 == 0xe000:
             register = (instruction & 0x0f00) >> 8
             key = self.state.registers[register]
@@ -139,6 +125,23 @@ class Chip8Cpu:
         number = self.state.stack[self.state.SP-1]
         self.state.SP -= 1
         return number
+
+    def draw(self, instruction):
+        register1 = (instruction & 0x0f00) >> 0x08;
+        register2 = (instruction & 0x00f0) >> 0x04;
+        x = self.state.registers[register1] & 0x3f
+        y = self.state.registers[register2] & 0x1f
+        x_byte_shift = x >> 3;
+        y_byte_shift = y << 3;
+        shift_in_byte = x & 0x07;
+        height = min(instruction & 0x000f, 0x20 - y)
+        start = self.state.screen_buffer_start + x_byte_shift + y_byte_shift
+        for i in range(height):
+            sprite_byte=self.state.memory[self.state.I + i]
+            row_byte_shift = i << 3
+            self.draw_byte(start + row_byte_shift, sprite_byte >> shift_in_byte)
+            if x < 0x3f:
+                self.draw_byte(start + row_byte_shift + 1, sprite_byte << (8-shift_in_byte) & 0xff)
 
     def draw_byte(self,address,byte):
         self.state.memory[address] = self.state.memory[address] ^ byte
