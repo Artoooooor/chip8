@@ -1,3 +1,5 @@
+from math import floor
+
 class Chip8State:
     def __init__(self):
         self.memory = bytearray(0x1000)
@@ -142,6 +144,13 @@ class Chip8Cpu:
                 self.state.I += self.state.registers[register]
             elif mode == 0x29:
                 self.state.I = self.state.registers[register] * 5
+            elif mode == 0x33:
+                num = self.state.registers[register]
+                self.state.memory[self.state.I] = floor(num/100)
+                num -= self.state.memory[self.state.I] * 100
+                self.state.memory[self.state.I+1] = floor(num/10)
+                num -= self.state.memory[self.state.I+1] * 10
+                self.state.memory[self.state.I+2] = num
         self.state.PC += 2
 
     def push(self, number):

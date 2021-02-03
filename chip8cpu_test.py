@@ -432,7 +432,12 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x04 * 5,self.state.I)
 
-    
+    def test_fa33_stored_bcd_of_ra_in_memI(self):
+        self.when_instruction_is(0x200, 0xfa33)
+        self.when_register_is(0xa,0xfe)
+        self.when_I_is(0x300)
+        self.cpu.tick()
+        self.assert_memory_value(0x300,0x02,0x05,0x04)
 
 
     def when_instruction_is(self, address, instruction):
