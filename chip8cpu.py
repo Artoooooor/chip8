@@ -89,39 +89,38 @@ class Chip8Cpu:
     def handle_alu(self, instruction):
         register1 = (instruction & 0x0f00) >> 0x08;
         register2 = (instruction & 0x00f0) >> 0x04;
-        if instruction & 0x000f == 0x0:
+        mode = instruction & 0x000f
+        if mode == 0x0:
             self.state.registers[register1] = self.state.registers[register2]
-        elif instruction & 0x000f == 0x1:
+        elif mode == 0x1:
             self.state.registers[register1] = self.state.registers[register1] | self.state.registers[register2]
-        elif instruction & 0x000f == 0x2:
+        elif mode == 0x2:
             self.state.registers[register1] = self.state.registers[register1] & self.state.registers[register2]
-        elif instruction & 0x000f == 0x3:
+        elif mode == 0x3:
             self.state.registers[register1] = self.state.registers[register1] ^ self.state.registers[register2]
-        elif instruction & 0x000f == 0x4:
+        elif mode == 0x4:
             sum = self.state.registers[register1] + self.state.registers[register2]
             self.state.registers[register1] = sum & 0xff
             if self.state.registers[register1] < sum:
                 self.state.registers[0xf] = 0x01
-        elif instruction & 0x000f == 0x5:
-            result = self.state.registers[register1] - self.state.registers[register2]
-            if result<0:
-                result += 0x100
-            else:
-                self.state.registers[0xf] = 0x01
-            self.state.registers[register1] = result
-        elif instruction & 0x000f == 0x6:
+        elif mode == 0x5:
+            self.state.registers[register1] = self.subtract(self.state.registers[register1], self.state.registers[register2])
+        elif mode == 0x6:
             self.state.registers[register1] = self.state.registers[register2] >> 1
             self.state.registers[0xf] = self.state.registers[register2] & 0x01
-        elif instruction & 0x000f == 0x7:
-            result = self.state.registers[register2] - self.state.registers[register1]
-            if result<0:
-                result += 0x100
-            else:
-                self.state.registers[0xf] = 0x01
-            self.state.registers[register1] = result
-        elif instruction & 0x000f == 0xe:
+        elif mode == 0x7:
+            self.state.registers[register1] = self.subtract(self.state.registers[register2], self.state.registers[register1])
+        elif mode == 0xe:
             self.state.registers[register1] = (self.state.registers[register2] << 1) & 0xff
             self.state.registers[0xf] = self.state.registers[register2] >> 7
+
+    def subtract(self, num1, num2):
+        result = num1 - num2
+        if result<0:
+            result += 0x100
+        else:
+            self.state.registers[0xf] = 0x01
+        return result
 
     def draw(self, instruction):
         register1 = (instruction & 0x0f00) >> 0x08;
