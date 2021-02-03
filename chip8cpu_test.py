@@ -439,6 +439,16 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_memory_value(0x300,0x02,0x05,0x04)
 
+    def test_f355_stores_r0_to_r3_in_memI_to_memIplus3(self):
+        self.when_instruction_is(0x200, 0xf355)
+        self.when_register_is(0x0,0x01)
+        self.when_register_is(0x1,0x02)
+        self.when_register_is(0x2,0x03)
+        self.when_register_is(0x3,0x04)
+        self.when_I_is(0x300)
+        self.cpu.tick()
+        self.assert_memory_value(0x300,0x01,0x02,0x03,0x04)
+
 
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
