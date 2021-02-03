@@ -55,41 +55,7 @@ class Chip8Cpu:
             value = instruction & 0x00ff
             self.state.registers[register] += value
         elif (instruction & 0xf000) == 0x8000:
-            register1 = (instruction & 0x0f00) >> 0x08;
-            register2 = (instruction & 0x00f0) >> 0x04;
-            if instruction & 0x000f == 0x0:
-                self.state.registers[register1] = self.state.registers[register2]
-            elif instruction & 0x000f == 0x1:
-                self.state.registers[register1] = self.state.registers[register1] | self.state.registers[register2]
-            elif instruction & 0x000f == 0x2:
-                self.state.registers[register1] = self.state.registers[register1] & self.state.registers[register2]
-            elif instruction & 0x000f == 0x3:
-                self.state.registers[register1] = self.state.registers[register1] ^ self.state.registers[register2]
-            elif instruction & 0x000f == 0x4:
-                sum = self.state.registers[register1] + self.state.registers[register2]
-                self.state.registers[register1] = sum & 0xff
-                if self.state.registers[register1] < sum:
-                    self.state.registers[0xf] = 0x01
-            elif instruction & 0x000f == 0x5:
-                result = self.state.registers[register1] - self.state.registers[register2]
-                if result<0:
-                    result += 0x100
-                else:
-                    self.state.registers[0xf] = 0x01
-                self.state.registers[register1] = result
-            elif instruction & 0x000f == 0x6:
-                self.state.registers[register1] = self.state.registers[register2] >> 1
-                self.state.registers[0xf] = self.state.registers[register2] & 0x01
-            elif instruction & 0x000f == 0x7:
-                result = self.state.registers[register2] - self.state.registers[register1]
-                if result<0:
-                    result += 0x100
-                else:
-                    self.state.registers[0xf] = 0x01
-                self.state.registers[register1] = result
-            elif instruction & 0x000f == 0xe:
-                self.state.registers[register1] = (self.state.registers[register2] << 1) & 0xff
-                self.state.registers[0xf] = self.state.registers[register2] >> 7
+            self.handle_alu(instruction)
         elif instruction & 0xf000 == 0x9000 and instruction & 0x000f == 0:
             register1 = (instruction & 0x0f00) >> 0x08;
             register2 = (instruction & 0x00f0) >> 0x04;
@@ -125,6 +91,43 @@ class Chip8Cpu:
         number = self.state.stack[self.state.SP-1]
         self.state.SP -= 1
         return number
+
+    def handle_alu(self, instruction):
+        register1 = (instruction & 0x0f00) >> 0x08;
+        register2 = (instruction & 0x00f0) >> 0x04;
+        if instruction & 0x000f == 0x0:
+            self.state.registers[register1] = self.state.registers[register2]
+        elif instruction & 0x000f == 0x1:
+            self.state.registers[register1] = self.state.registers[register1] | self.state.registers[register2]
+        elif instruction & 0x000f == 0x2:
+            self.state.registers[register1] = self.state.registers[register1] & self.state.registers[register2]
+        elif instruction & 0x000f == 0x3:
+            self.state.registers[register1] = self.state.registers[register1] ^ self.state.registers[register2]
+        elif instruction & 0x000f == 0x4:
+            sum = self.state.registers[register1] + self.state.registers[register2]
+            self.state.registers[register1] = sum & 0xff
+            if self.state.registers[register1] < sum:
+                self.state.registers[0xf] = 0x01
+        elif instruction & 0x000f == 0x5:
+            result = self.state.registers[register1] - self.state.registers[register2]
+            if result<0:
+                result += 0x100
+            else:
+                self.state.registers[0xf] = 0x01
+            self.state.registers[register1] = result
+        elif instruction & 0x000f == 0x6:
+            self.state.registers[register1] = self.state.registers[register2] >> 1
+            self.state.registers[0xf] = self.state.registers[register2] & 0x01
+        elif instruction & 0x000f == 0x7:
+            result = self.state.registers[register2] - self.state.registers[register1]
+            if result<0:
+                result += 0x100
+            else:
+                self.state.registers[0xf] = 0x01
+            self.state.registers[register1] = result
+        elif instruction & 0x000f == 0xe:
+            self.state.registers[register1] = (self.state.registers[register2] << 1) & 0xff
+            self.state.registers[0xf] = self.state.registers[register2] >> 7
 
     def draw(self, instruction):
         register1 = (instruction & 0x0f00) >> 0x08;
