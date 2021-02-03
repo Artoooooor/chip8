@@ -128,29 +128,7 @@ class Chip8Cpu:
             elif mode == 0xa1 and not self.state.keys[key]:
                 self.state.PC += 2
         elif instruction & 0xf000 == 0xf000:
-            mode = instruction & 0x00ff
-            register = (instruction & 0x0f00) >> 8
-            if mode == 0x07:
-                self.state.registers[register] = self.state.DT
-            elif mode == 0x0a:
-                key = self.state.registers[register]
-                if not self.state.keys[key]:
-                    return
-            elif mode == 0x15:
-                self.state.DT = self.state.registers[register]
-            elif mode == 0x18:
-                self.state.ST = self.state.registers[register]
-            elif mode == 0x1e:
-                self.state.I += self.state.registers[register]
-            elif mode == 0x29:
-                self.state.I = self.state.registers[register] * 5
-            elif mode == 0x33:
-                num = self.state.registers[register]
-                self.state.memory[self.state.I] = floor(num/100)
-                num -= self.state.memory[self.state.I] * 100
-                self.state.memory[self.state.I+1] = floor(num/10)
-                num -= self.state.memory[self.state.I+1] * 10
-                self.state.memory[self.state.I+2] = num
+            self.handle_memory_operation(instruction)
         self.state.PC += 2
 
     def push(self, number):
@@ -166,3 +144,28 @@ class Chip8Cpu:
         self.state.memory[address] = self.state.memory[address] ^ byte
         if self.state.memory[address] != byte:
             self.state.registers[0xf] = 0x01
+    
+    def handle_memory_operation(self, instruction):
+        mode = instruction & 0x00ff
+        register = (instruction & 0x0f00) >> 8
+        if mode == 0x07:
+            self.state.registers[register] = self.state.DT
+        elif mode == 0x0a:
+            key = self.state.registers[register]
+            if not self.state.keys[key]:
+                self.state.PC -= 2
+        elif mode == 0x15:
+            self.state.DT = self.state.registers[register]
+        elif mode == 0x18:
+            self.state.ST = self.state.registers[register]
+        elif mode == 0x1e:
+            self.state.I += self.state.registers[register]
+        elif mode == 0x29:
+            self.state.I = self.state.registers[register] * 5
+        elif mode == 0x33:
+            num = self.state.registers[register]
+            self.state.memory[self.state.I] = floor(num/100)
+            num -= self.state.memory[self.state.I] * 100
+            self.state.memory[self.state.I+1] = floor(num/10)
+            num -= self.state.memory[self.state.I+1] * 10
+            self.state.memory[self.state.I+2] = num
