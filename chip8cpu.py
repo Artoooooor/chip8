@@ -72,13 +72,7 @@ class Chip8Cpu:
         elif instruction & 0xf000 == 0xd000:
             self.draw(instruction)
         elif instruction & 0xf000 == 0xe000:
-            register = (instruction & 0x0f00) >> 8
-            key = self.state.registers[register]
-            mode = instruction & 0x00ff
-            if mode == 0x9e and self.state.keys[key]:
-                self.state.PC += 2
-            elif mode == 0xa1 and not self.state.keys[key]:
-                self.state.PC += 2
+            self.handle_keyboard(instruction)
         elif instruction & 0xf000 == 0xf000:
             self.handle_memory_operation(instruction)
         self.state.PC += 2
@@ -150,6 +144,15 @@ class Chip8Cpu:
         self.state.memory[address] = self.state.memory[address] ^ byte
         if self.state.memory[address] != byte:
             self.state.registers[0xf] = 0x01
+
+    def handle_keyboard(self, instruction):
+        register = (instruction & 0x0f00) >> 8
+        key = self.state.registers[register]
+        mode = instruction & 0x00ff
+        if mode == 0x9e and self.state.keys[key]:
+            self.state.PC += 2
+        elif mode == 0xa1 and not self.state.keys[key]:
+            self.state.PC += 2
     
     def handle_memory_operation(self, instruction):
         mode = instruction & 0x00ff
