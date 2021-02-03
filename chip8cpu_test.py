@@ -441,13 +441,17 @@ class CpuTest(unittest.TestCase):
 
     def test_f355_stores_r0_to_r3_in_memI_to_memIplus3(self):
         self.when_instruction_is(0x200, 0xf355)
-        self.when_register_is(0x0,0x01)
-        self.when_register_is(0x1,0x02)
-        self.when_register_is(0x2,0x03)
-        self.when_register_is(0x3,0x04)
+        self.when_registers_are(0x0,0x01,0x02,0x03,0x04)
         self.when_I_is(0x300)
         self.cpu.tick()
         self.assert_memory_value(0x300,0x01,0x02,0x03,0x04)
+
+    def test_f365_loads_r0_to_r3_from_memI_to_memIplus3(self):
+        self.when_instruction_is(0x200, 0xf365)
+        self.when_I_is(0x300)
+        self.when_memory_is(0x300,0x01,0x02,0x03,0x04)
+        self.cpu.tick()
+        self.assert_registers(0x0,0x01,0x02,0x03,0x04)
 
 
     def when_instruction_is(self, address, instruction):
@@ -473,8 +477,11 @@ class CpuTest(unittest.TestCase):
     def when_I_is(self, i):
         self.state.I = i
 
+    def when_registers_are(self, first, *values):
+        self.state.registers[first:first+len(values)] = values
+
     def when_register_is(self,register,value):
-        self.state.registers[register]=value
+        self.when_registers_are(register,value)
 
     def when_random_number_is(self, number):
         self.random_mock_number = number
@@ -505,6 +512,10 @@ class CpuTest(unittest.TestCase):
     def assert_memory_column(self, address, *values):
         for i,value in enumerate(values):
             self.assertEqual(value, self.state.memory[address + i * 0x008])
+    
+    def assert_registers(self, first, *values):
+        for i,value in enumerate(values):
+            self.assertEqual(value, self.state.registers[first + i])
 
 if __name__ == '__main__':
     unittest.main()

@@ -179,3 +179,5 @@ class Chip8Cpu:
             self.state.memory[self.state.I+2] = num
         elif mode == 0x55:
             self.state.memory[self.state.I:self.state.I+register+1] = self.state.registers[:register+1]
+        elif mode == 0x65:
+            self.state.registers[:register+1] = self.state.memory[self.state.I:self.state.I+register+1]
