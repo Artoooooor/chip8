@@ -453,6 +453,38 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_registers(0x0,0x01,0x02,0x03,0x04)
 
+    def test_tick_decreases_timer_counter(self):
+        self.when_timer_counter_is(0x05)
+        self.cpu.tick()
+        self.assertEqual(0x04,self.state.timer_counter)
+
+    def test_dt_decrements_when_timer_counter_is_0(self):
+        self.when_timer_counter_is(0x00)
+        self.when_dt_is(0x02)
+        self.cpu.tick()
+        self.assertEqual(0x09,self.state.timer_counter)
+        self.assertEqual(0x01,self.state.DT)
+
+    def test_dt_stays_at_0(self):
+        self.when_timer_counter_is(0x00)
+        self.when_dt_is(0x00)
+        self.cpu.tick()
+        self.assertEqual(0x09,self.state.timer_counter)
+        self.assertEqual(0x00,self.state.DT)
+
+    def test_st_decrements_when_timer_counter_is_0(self):
+        self.when_timer_counter_is(0x00)
+        self.when_st_is(0x02)
+        self.cpu.tick()
+        self.assertEqual(0x09,self.state.timer_counter)
+        self.assertEqual(0x01,self.state.ST)
+
+    def test_st_stays_at_0(self):
+        self.when_timer_counter_is(0x00)
+        self.when_st_is(0x00)
+        self.cpu.tick()
+        self.assertEqual(0x09,self.state.timer_counter)
+        self.assertEqual(0x00,self.state.ST)
 
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
@@ -474,6 +506,9 @@ class CpuTest(unittest.TestCase):
     def when_dt_is(self, dt):
         self.state.DT = dt
 
+    def when_st_is(self, st):
+        self.state.ST = st
+
     def when_I_is(self, i):
         self.state.I = i
 
@@ -491,6 +526,9 @@ class CpuTest(unittest.TestCase):
 
     def when_key_is_not_pressed(self, key):
         self.state.keys[key] = False
+
+    def when_timer_counter_is(self,value):
+        self.state.timer_counter = value
 
     def assert_zeros(self, start, length):
         for b in self.state.memory[start:start+length]:

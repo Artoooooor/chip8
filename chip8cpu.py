@@ -13,6 +13,7 @@ class Chip8State:
         self.screen_buffer_length = 0x100
         self.screen_buffer_start = 0x1000 - self.screen_buffer_length
         self.keys = [False] * 16
+        self.timer_counter = 9
 
 class Chip8Cpu:
     def __init__(self,state, rng):
@@ -76,6 +77,8 @@ class Chip8Cpu:
         elif instruction & 0xf000 == 0xf000:
             self.handle_memory_operation(instruction)
         self.state.PC += 2
+        self.handle_timers()
+        
 
     def push(self, number):
         self.state.stack[self.state.SP]=number
@@ -181,3 +184,11 @@ class Chip8Cpu:
             self.state.memory[self.state.I:self.state.I+register+1] = self.state.registers[:register+1]
         elif mode == 0x65:
             self.state.registers[:register+1] = self.state.memory[self.state.I:self.state.I+register+1]
+    
+    def handle_timers(self):
+        if self.state.timer_counter>0:
+            self.state.timer_counter -= 1
+        else:
+            self.state.timer_counter = 9
+            self.state.DT=max(self.state.DT-1,0)
+            self.state.ST=max(self.state.ST-1,0)
