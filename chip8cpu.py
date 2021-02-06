@@ -69,7 +69,7 @@ class Chip8Cpu:
         elif group == 0xc:
             self.state.registers[register1] = self.rng() & value
         elif group == 0xd:
-            self.draw(instruction)
+            self.draw(register1, register2, mode)
         elif group == 0xe:
             self.handle_keyboard(instruction)
         elif group == 0xf:
@@ -134,15 +134,13 @@ class Chip8Cpu:
         return result
         
 
-    def draw(self, instruction):
-        register1 = (instruction & 0x0f00) >> 0x08;
-        register2 = (instruction & 0x00f0) >> 0x04;
+    def draw(self, register1, register2, mode):
         x = self.state.registers[register1] & 0x3f
         y = self.state.registers[register2] & 0x1f
         x_byte_shift = x >> 3;
         y_byte_shift = y << 3;
         shift_in_byte = x & 0x07;
-        height = min(instruction & 0x000f, 0x20 - y)
+        height = min(mode, 0x20 - y)
         start = self.state.screen_buffer_start + x_byte_shift + y_byte_shift
         for i in range(height):
             sprite_byte=self.state.memory[self.state.I + i]
