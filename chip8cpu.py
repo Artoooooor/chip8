@@ -1,6 +1,23 @@
 from math import floor
 
-CHIP8_STANDARD_FONT = [0xF0, 0x90, 0x90, 0x90, 0xF0, 0x20, 0x60, 0x20, 0x20, 0x70, 0xF0, 0x10, 0xF0, 0x80, 0xF0, 0xF0, 0x10, 0xF0, 0x10, 0xF0, 0x90, 0x90, 0xF0, 0x10, 0x10, 0xF0, 0x80, 0xF0, 0x10, 0xF0, 0xF0, 0x80, 0xF0, 0x90, 0xF0, 0xF0, 0x10, 0x20, 0x40, 0x40, 0xF0, 0x90, 0xF0, 0x90, 0xF0, 0xF0, 0x90, 0xF0, 0x10, 0xF0, 0xF0, 0x90, 0xF0, 0x90, 0x90, 0xE0, 0x90, 0xE0, 0x90, 0xE0, 0xF0, 0x80, 0x80, 0x80, 0xF0, 0xE0, 0x90, 0x90, 0x90, 0xE0, 0xF0, 0x80, 0xF0, 0x80, 0xF0, 0xF0, 0x80, 0xF0, 0x80, 0x80]
+CHIP8_STANDARD_FONT = [
+    0xF0, 0x90, 0x90, 0x90, 0xF0, 
+    0x20, 0x60, 0x20, 0x20, 0x70, 
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, 
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, 
+    0x90, 0x90, 0xF0, 0x10, 0x10, 
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, 
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, 
+    0xF0, 0x10, 0x20, 0x40, 0x40, 
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, 
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, 
+    0xF0, 0x90, 0xF0, 0x90, 0x90, 
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, 
+    0xF0, 0x80, 0x80, 0x80, 0xF0, 
+    0xE0, 0x90, 0x90, 0x90, 0xE0, 
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, 
+    0xF0, 0x80, 0xF0, 0x80, 0x80
+]
 
 class Chip8State:
     def __init__(self):
@@ -19,8 +36,8 @@ class Chip8State:
         self.load_font(CHIP8_STANDARD_FONT)
 
     def load_program(self, program):
-        self.memory[0x200:0x200 + len(program)] = program
         rest = len(self.memory) - len(program) - 0x200
+        self.memory[0x200 : 0x200 + len(program)] = program
         self.memory[0x200 + len(program):] = [0x00] * rest
     
     def load_font(self, font):
@@ -33,11 +50,11 @@ class Chip8Cpu:
 
     def tick(self):
         instruction = (self.state.memory[self.state.PC] << 8) + self.state.memory[self.state.PC+1]
-        group = (instruction & 0xf000) >> 12
-        address = instruction & 0x0fff
-        value = instruction & 0x00ff
+        group = (instruction & 0xf000) >> 0x0c
         register1 = (instruction & 0x0f00) >> 0x08
         register2 = (instruction & 0x00f0) >> 0x04
+        address = instruction & 0x0fff
+        value = instruction & 0x00ff
         mode = instruction & 0x000f
         if instruction == 0x00e0:
             self.state.memory[-0x100:] = [0]*0x100
@@ -132,7 +149,6 @@ class Chip8Cpu:
         if result < num1:
             self.state.registers[0xf] = 0x01
         return result
-        
 
     def draw(self, register1, register2, mode):
         x = self.state.registers[register1] & 0x3f
@@ -149,7 +165,7 @@ class Chip8Cpu:
             if x < 0x38:
                 self.draw_byte(start + row_byte_shift + 1, sprite_byte << (8-shift_in_byte) & 0xff)
 
-    def draw_byte(self,address,byte):
+    def draw_byte(self, address, byte):
         self.state.memory[address] = self.state.memory[address] ^ byte
         if self.state.memory[address] != byte:
             self.state.registers[0xf] = 0x01
@@ -177,9 +193,9 @@ class Chip8Cpu:
         elif mode == 0x29:
             self.state.I = registerValue * 5
         elif mode == 0x33:
-            self.state.memory[self.state.I:self.state.I+2] = to_bcd(registerValue)
+            self.state.memory[self.state.I : self.state.I + 2] = to_bcd(registerValue)
         elif mode == 0x55:
-            self.state.memory[self.state.I:self.state.I+register+1] = self.state.registers[:register+1]
+            self.state.memory[self.state.I : self.state.I + register + 1] = self.state.registers[:register+1]
         elif mode == 0x65:
             self.state.registers[:register+1] = self.state.memory[self.state.I:self.state.I+register+1]
     
@@ -188,8 +204,8 @@ class Chip8Cpu:
             self.state.timer_counter -= 1
         else:
             self.state.timer_counter = 9
-            self.state.DT=max(self.state.DT-1,0)
-            self.state.ST=max(self.state.ST-1,0)
+            self.state.DT = max(self.state.DT - 1, 0)
+            self.state.ST = max(self.state.ST - 1, 0)
 
 def to_bcd(number):
     a = floor(number/100)
