@@ -48,14 +48,11 @@ class Chip8Cpu:
             self.push(self.state.PC)
             self.state.PC = address - 2;
         elif group == 0x3:
-            if self.state.registers[register1] == value:
-                self.state.PC += 2
+            self.skip_if_equal(self.state.registers[register1], value)
         elif group == 0x4:
-            if self.state.registers[register1] != value:
-                self.state.PC += 2
+            self.skip_if_not_equal(self.state.registers[register1], value)
         elif group == 0x5 and instruction & 0x000f == 0x00:
-            if self.state.registers[register1] == self.state.registers[register2]:
-                self.state.PC += 2
+            self.skip_if_equal(self.state.registers[register1], self.state.registers[register2])
         elif group == 0x6:
             self.state.registers[register1] = value
         elif group == 0x7:
@@ -63,8 +60,7 @@ class Chip8Cpu:
         elif group == 0x8:
             self.handle_alu(instruction)
         elif group == 0x9 and instruction & 0x000f == 0:
-            if self.state.registers[register1] != self.state.registers[register2]:
-                self.state.PC += 2
+            self.skip_if_not_equal(self.state.registers[register1], self.state.registers[register2])
         elif group == 0xa:
             self.state.I = address
         elif group == 0xb:
@@ -89,6 +85,14 @@ class Chip8Cpu:
         number = self.state.stack[self.state.SP-1]
         self.state.SP -= 1
         return number
+    
+    def skip_if_equal(self, value1, value2):
+        if value1 == value2:
+            self.state.PC += 2
+
+    def skip_if_not_equal(self, value1, value2):
+        if value1 != value2:
+            self.state.PC += 2
 
     def handle_alu(self, instruction):
         register1 = (instruction & 0x0f00) >> 0x08;
