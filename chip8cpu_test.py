@@ -65,7 +65,7 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x202,self.state.PC)
 
-    def test_4ABC_skips_instruction_if_rA_contains_BB(self):
+    def test_4ABC_skips_instruction_if_rA_does_not_contain_BC(self):
         self.when_instruction_is(0x200,0x4ABC)
         self.when_register_is(0xA,0xBB)
         self.cpu.tick()
@@ -98,10 +98,10 @@ class CpuTest(unittest.TestCase):
         self.assertEqual(0x17,self.state.registers[0xC])
 
     def test_7C17_adds_17_to_rC(self):
-        self.when_instruction_is(0x200,0x7C17)
-        self.when_register_is(0xC,0x10)
+        self.when_instruction_is(0x200, 0x7C17)
+        self.when_register_is(0xC, 0x10)
         self.cpu.tick()
-        self.assertEqual(0x27,self.state.registers[0xC])
+        self.assertEqual(0x27, self.state.registers[0xC])
 
     def test_7Cff_adds_ff_to_rC_and_handles_overflow(self):
         self.when_instruction_is(0x200,0x7Cff)
@@ -113,7 +113,7 @@ class CpuTest(unittest.TestCase):
         self.when_instruction_is(0x200,0x8CB0)
         self.when_register_is(0xB,0x17)
         self.cpu.tick()
-        self.assertEqual(0x17,self.state.registers[0xC])
+        self.assertEqual(0x17, self.state.registers[0xC])
     
     def test_8cb1_sets_rC_to_rC_or_rB(self):
         self.when_instruction_is(0x200,0x8CB1)
@@ -148,6 +148,7 @@ class CpuTest(unittest.TestCase):
         self.when_instruction_is(0x200,0x8CB4)
         self.when_register_is(0xB,0xf0)
         self.when_register_is(0xC,0x03)
+        self.when_register_is(0xF,0x01)
         self.cpu.tick()
         self.assertEqual(0xf3,self.state.registers[0xC])
         self.assertEqual(0x00,self.state.registers[0xF])
@@ -156,6 +157,7 @@ class CpuTest(unittest.TestCase):
         self.when_instruction_is(0x200, 0x8CB5)
         self.when_register_is(0xB,0xff)
         self.when_register_is(0xC,0x03)
+        self.when_register_is(0xF,0x01)
         self.cpu.tick()
         self.assertEqual(0x04,self.state.registers[0xC])
         self.assertEqual(0x00,self.state.registers[0xF])
@@ -186,6 +188,7 @@ class CpuTest(unittest.TestCase):
         self.when_instruction_is(0x200, 0x8CB7)
         self.when_register_is(0xB,0x03)
         self.when_register_is(0xC,0xff)
+        self.when_register_is(0xf, 0x01)
         self.cpu.tick()
         self.assertEqual(0x04,self.state.registers[0xC])
         self.assertEqual(0x00,self.state.registers[0xF])
@@ -456,17 +459,17 @@ class CpuTest(unittest.TestCase):
 
     def test_f355_stores_r0_to_r3_in_memI_to_memIplus3(self):
         self.when_instruction_is(0x200, 0xf355)
-        self.when_registers_are(0x0,0x01,0x02,0x03,0x04)
+        self.when_registers_are(0x0,0x01,0x02,0x03,0x04,0x05)
         self.when_I_is(0x300)
         self.cpu.tick()
-        self.assert_memory_value(0x300,0x01,0x02,0x03,0x04)
+        self.assert_memory_value(0x300,0x01,0x02,0x03,0x04,0x00)
 
     def test_f365_loads_r0_to_r3_from_memI_to_memIplus3(self):
         self.when_instruction_is(0x200, 0xf365)
         self.when_I_is(0x300)
-        self.when_memory_is(0x300,0x01,0x02,0x03,0x04)
+        self.when_memory_is(0x300,0x01,0x02,0x03,0x04,0x05)
         self.cpu.tick()
-        self.assert_registers(0x0,0x01,0x02,0x03,0x04)
+        self.assert_registers(0x0,0x01,0x02,0x03,0x04,0x00)
 
     def test_tick_decreases_timer_counter(self):
         self.when_timer_counter_is(0x05)
