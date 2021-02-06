@@ -365,6 +365,15 @@ class CpuTest(unittest.TestCase):
         self.assert_memory_column(self.state.screen_buffer_start+1, 0x70)
         self.assertEqual(0x01,self.state.registers[0xf]);
 
+    def test_d121_draws_last_group(self):
+        self.when_instruction_is(0x200, 0xd121)
+        self.when_I_is(0x400)
+        self.when_register_is(0x1, 0x38)
+        self.when_register_is(0x2, 0x1f)
+        self.when_memory_is(0x400, 0xff)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start + 0x1f * 0x08 + (0x38 >> 3),0xff)
+
     def test_ea9e_skips_instruction_if_key_from_ra_is_pressed(self):
         self.when_instruction_is(0x200, 0xea9e)
         self.when_register_is(0xa,0x01)

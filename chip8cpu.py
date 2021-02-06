@@ -150,7 +150,7 @@ class Chip8Cpu:
             sprite_byte=self.state.memory[self.state.I + i]
             row_byte_shift = i << 3
             self.draw_byte(start + row_byte_shift, sprite_byte >> shift_in_byte)
-            if x < 0x3f:
+            if x < 0x38:
                 self.draw_byte(start + row_byte_shift + 1, sprite_byte << (8-shift_in_byte) & 0xff)
 
     def draw_byte(self,address,byte):
