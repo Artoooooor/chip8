@@ -69,24 +69,24 @@ class Chip8Cpu:
             self.state.registers[register] = (self.state.registers[register] + value) & 0xff
         elif group == 0x8:
             self.handle_alu(instruction)
-        elif instruction & 0xf000 == 0x9000 and instruction & 0x000f == 0:
+        elif group == 0x9 and instruction & 0x000f == 0:
             register1 = (instruction & 0x0f00) >> 0x08;
             register2 = (instruction & 0x00f0) >> 0x04;
             if self.state.registers[register1] != self.state.registers[register2]:
                 self.state.PC += 2
-        elif instruction & 0xf000 == 0xa000:
+        elif group == 0xa:
             self.state.I = address
-        elif instruction & 0xf000 == 0xb000:
+        elif group == 0xb:
             self.state.PC = address + self.state.registers[0x0] - 2
-        elif instruction & 0xf000 == 0xc000:
+        elif group == 0xc:
             register = (instruction & 0x0f00) >> 0x08;
             mask = instruction & 0x00ff
             self.state.registers[register] = self.rng() & mask
-        elif instruction & 0xf000 == 0xd000:
+        elif group == 0xd:
             self.draw(instruction)
-        elif instruction & 0xf000 == 0xe000:
+        elif group == 0xe:
             self.handle_keyboard(instruction)
-        elif instruction & 0xf000 == 0xf000:
+        elif group == 0xf:
             self.handle_memory_operation(instruction)
         self.state.PC += 2
         self.handle_timers()
