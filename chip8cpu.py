@@ -65,7 +65,7 @@ class Chip8Cpu:
         elif (instruction & 0xf000) == 0x7000:
             register = (instruction & 0x0f00) >> 0x08;
             value = instruction & 0x00ff
-            self.state.registers[register] += value
+            self.state.registers[register] = (self.state.registers[register] + value) & 0xff
         elif (instruction & 0xf000) == 0x8000:
             self.handle_alu(instruction)
         elif instruction & 0xf000 == 0x9000 and instruction & 0x000f == 0:
