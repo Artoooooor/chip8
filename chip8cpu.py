@@ -38,6 +38,7 @@ class Chip8Cpu:
         value = instruction & 0x00ff
         register1 = (instruction & 0x0f00) >> 0x08
         register2 = (instruction & 0x00f0) >> 0x04
+        mode = instruction & 0x000f
         if instruction == 0x00e0:
             self.state.memory[-0x100:] = [0]*0x100
         elif instruction == 0x00ee:
@@ -58,7 +59,7 @@ class Chip8Cpu:
         elif group == 0x7:
             self.state.registers[register1] = (self.state.registers[register1] + value) & 0xff
         elif group == 0x8:
-            self.handle_alu(instruction)
+            self.handle_alu(register1, register2, mode)
         elif group == 0x9 and instruction & 0x000f == 0:
             self.skip_if_not_equal(self.state.registers[register1], self.state.registers[register2])
         elif group == 0xa:
@@ -94,33 +95,29 @@ class Chip8Cpu:
         if value1 != value2:
             self.state.PC += 2
 
-    def handle_alu(self, instruction):
-        register1 = (instruction & 0x0f00) >> 0x08;
-        register2 = (instruction & 0x00f0) >> 0x04;
-        mode = instruction & 0x000f
+    def handle_alu(self, register1, register2, mode):
+        value1 = self.state.registers[register1]
+        value2 = self.state.registers[register2]
         if mode == 0x0:
-            self.state.registers[register1] = self.state.registers[register2]
+            self.state.registers[register1] = value2
         elif mode == 0x1:
-            self.state.registers[register1] = self.state.registers[register1] | self.state.registers[register2]
+            self.state.registers[register1] = value1 | value2
         elif mode == 0x2:
-            self.state.registers[register1] = self.state.registers[register1] & self.state.registers[register2]
+            self.state.registers[register1] = value1 & value2
         elif mode == 0x3:
-            self.state.registers[register1] = self.state.registers[register1] ^ self.state.registers[register2]
+            self.state.registers[register1] = value1 ^ value2
         elif mode == 0x4:
-            sum = self.state.registers[register1] + self.state.registers[register2]
-            self.state.registers[register1] = sum & 0xff
-            if self.state.registers[register1] < sum:
-                self.state.registers[0xf] = 0x01
+            self.state.registers[register1] = self.add(value1, value2)
         elif mode == 0x5:
-            self.state.registers[register1] = self.subtract(self.state.registers[register1], self.state.registers[register2])
+            self.state.registers[register1] = self.subtract(value1, value2)
         elif mode == 0x6:
-            self.state.registers[register1] = self.state.registers[register2] >> 1
-            self.state.registers[0xf] = self.state.registers[register2] & 0x01
+            self.state.registers[register1] = value2 >> 1
+            self.state.registers[0xf] = value2 & 0x01
         elif mode == 0x7:
-            self.state.registers[register1] = self.subtract(self.state.registers[register2], self.state.registers[register1])
+            self.state.registers[register1] = self.subtract(value2, value1)
         elif mode == 0xe:
-            self.state.registers[register1] = (self.state.registers[register2] << 1) & 0xff
-            self.state.registers[0xf] = self.state.registers[register2] >> 7
+            self.state.registers[register1] = (value2 << 1) & 0xff
+            self.state.registers[0xf] = value2 >> 7
 
     def subtract(self, num1, num2):
         result = num1 - num2
@@ -129,6 +126,13 @@ class Chip8Cpu:
         else:
             self.state.registers[0xf] = 0x01
         return result
+
+    def add(self, num1, num2):
+        result = (num1+num2) & 0xff
+        if result < num1:
+            self.state.registers[0xf] = 0x01
+        return result
+        
 
     def draw(self, instruction):
         register1 = (instruction & 0x0f00) >> 0x08;
