@@ -4,6 +4,8 @@ import blitter
 import random
 import sys
 
+CYCLES_PER_FRAME = 9
+
 def update(surf, state):
     arr = pygame.PixelArray(surf)
     blitter.blit_screen(state, surf.map_rgb(0,50,0), surf.map_rgb(0,255,0), arr)
@@ -31,7 +33,8 @@ while playing:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             playing = False
-    cpu.tick()
+    for i in range(CYCLES_PER_FRAME):
+        cpu.tick()
     update(surf, state)
     pygame.transform.scale(surf,(640,320), bigSurf)
     screen.blit(bigSurf, (80,20))        
