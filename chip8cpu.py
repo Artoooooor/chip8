@@ -34,15 +34,16 @@ class Chip8Cpu:
     def tick(self):
         instruction = (self.state.memory[self.state.PC] << 8) + self.state.memory[self.state.PC+1]
         group = (instruction & 0xf000) >> 12
+        address = instruction & 0x0fff
         if instruction == 0x00e0:
             self.state.memory[-0x100:] = [0]*0x100
         elif instruction == 0x00ee:
             self.state.PC = self.pop()
         elif group == 0x1:
-            self.state.PC = (instruction & 0x0fff) - 2;
+            self.state.PC = address - 2;
         elif group == 0x2:
             self.push(self.state.PC)
-            self.state.PC = (instruction & 0x0fff) - 2;
+            self.state.PC = address - 2;
         elif group == 0x3:
             register = (instruction & 0x0f00) >> 0x08;
             value = instruction & 0x00ff
@@ -74,9 +75,9 @@ class Chip8Cpu:
             if self.state.registers[register1] != self.state.registers[register2]:
                 self.state.PC += 2
         elif instruction & 0xf000 == 0xa000:
-            self.state.I = instruction & 0x0fff
+            self.state.I = address
         elif instruction & 0xf000 == 0xb000:
-            self.state.PC = (instruction & 0x0fff) + self.state.registers[0x0] - 2
+            self.state.PC = address + self.state.registers[0x0] - 2
         elif instruction & 0xf000 == 0xc000:
             register = (instruction & 0x0f00) >> 0x08;
             mask = instruction & 0x00ff
