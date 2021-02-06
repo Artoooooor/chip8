@@ -35,6 +35,7 @@ class Chip8Cpu:
         instruction = (self.state.memory[self.state.PC] << 8) + self.state.memory[self.state.PC+1]
         group = (instruction & 0xf000) >> 12
         address = instruction & 0x0fff
+        value = instruction & 0x00ff
         if instruction == 0x00e0:
             self.state.memory[-0x100:] = [0]*0x100
         elif instruction == 0x00ee:
@@ -46,12 +47,10 @@ class Chip8Cpu:
             self.state.PC = address - 2;
         elif group == 0x3:
             register = (instruction & 0x0f00) >> 0x08;
-            value = instruction & 0x00ff
             if self.state.registers[register] == value:
                 self.state.PC += 2
         elif group == 0x4:
             register = (instruction & 0x0f00) >> 0x08;
-            value = instruction & 0x00ff
             if self.state.registers[register] != value:
                 self.state.PC += 2
         elif group == 0x5 and instruction & 0x000f == 0x00:
@@ -61,11 +60,9 @@ class Chip8Cpu:
                 self.state.PC += 2
         elif group == 0x6:
             register = (instruction & 0x0f00) >> 0x08;
-            value = instruction & 0x00ff
             self.state.registers[register] = value
         elif group == 0x7:
             register = (instruction & 0x0f00) >> 0x08;
-            value = instruction & 0x00ff
             self.state.registers[register] = (self.state.registers[register] + value) & 0xff
         elif group == 0x8:
             self.handle_alu(instruction)
@@ -80,8 +77,7 @@ class Chip8Cpu:
             self.state.PC = address + self.state.registers[0x0] - 2
         elif group == 0xc:
             register = (instruction & 0x0f00) >> 0x08;
-            mask = instruction & 0x00ff
-            self.state.registers[register] = self.rng() & mask
+            self.state.registers[register] = self.rng() & value
         elif group == 0xd:
             self.draw(instruction)
         elif group == 0xe:
