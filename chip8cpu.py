@@ -34,8 +34,7 @@ class Chip8Cpu:
     def tick(self):
         instruction = (self.state.memory[self.state.PC] << 8) + self.state.memory[self.state.PC+1]
         if instruction == 0x00e0:
-            for i in range(0x100):  
-                self.state.memory[0x1000 - 0x100 + i]=0
+            self.state.memory[-0x100:] = [0]*0x100
         elif instruction == 0x00ee:
             self.state.PC = self.pop()
         elif (instruction & 0xf000) == 0x1000:
