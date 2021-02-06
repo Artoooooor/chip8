@@ -177,11 +177,7 @@ class Chip8Cpu:
         elif mode == 0x29:
             self.state.I = registerValue * 5
         elif mode == 0x33:
-            self.state.memory[self.state.I] = floor(registerValue/100)
-            registerValue -= self.state.memory[self.state.I] * 100
-            self.state.memory[self.state.I+1] = floor(registerValue/10)
-            registerValue -= self.state.memory[self.state.I+1] * 10
-            self.state.memory[self.state.I+2] = registerValue
+            self.state.memory[self.state.I:self.state.I+2] = to_bcd(registerValue)
         elif mode == 0x55:
             self.state.memory[self.state.I:self.state.I+register+1] = self.state.registers[:register+1]
         elif mode == 0x65:
@@ -194,3 +190,11 @@ class Chip8Cpu:
             self.state.timer_counter = 9
             self.state.DT=max(self.state.DT-1,0)
             self.state.ST=max(self.state.ST-1,0)
+
+def to_bcd(number):
+    a = floor(number/100)
+    number -= a * 100
+    b = floor(number/10)
+    number -= b * 10
+    c = number
+    return a,b,c
