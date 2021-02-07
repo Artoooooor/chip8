@@ -472,6 +472,7 @@ class CpuTest(unittest.TestCase):
         self.when_I_is(0x300)
         self.cpu.tick()
         self.assert_memory_value(0x300,0x02,0x05,0x04)
+        self.assertEqual(0x1000,len(self.state.memory))
 
     def test_f355_stores_r0_to_r3_in_memI_to_memIplus3(self):
         self.when_instruction_is(0x200, 0xf355)

@@ -197,7 +197,7 @@ class Chip8Cpu:
         elif mode == 0x29:
             self.state.I = registerValue * 5
         elif mode == 0x33:
-            self.state.memory[self.state.I : self.state.I + 2] = to_bcd(registerValue)
+            self.state.memory[self.state.I : self.state.I + 3] = to_bcd(registerValue)
         elif mode == 0x55:
             self.state.memory[self.state.I : self.state.I + register + 1] = self.state.registers[:register+1]
             self.state.I += register + 1
