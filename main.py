@@ -6,6 +6,25 @@ import sys
 
 CYCLES_PER_FRAME = 9
 
+key_numbers = {
+    pygame.K_0: 0x0,
+    pygame.K_1: 0x1,
+    pygame.K_2: 0x2,
+    pygame.K_3: 0x3,
+    pygame.K_4: 0x4,
+    pygame.K_5: 0x5,
+    pygame.K_6: 0x6,
+    pygame.K_7: 0x7,
+    pygame.K_8: 0x8,
+    pygame.K_9: 0x9,
+    pygame.K_a: 0xA,
+    pygame.K_b: 0xB,
+    pygame.K_c: 0xC,
+    pygame.K_d: 0xD,
+    pygame.K_e: 0xE,
+    pygame.K_f: 0xF
+}
+
 surf = pygame.Surface((64,32))
 bigSurf = pygame.Surface((640,320))
 def draw_screen(state):
@@ -38,6 +57,12 @@ while playing:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             playing = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key in key_numbers:
+                state.keys[key_numbers[event.key]] = True
+        elif event.type == pygame.KEYUP:
+            if event.key in key_numbers:
+                state.keys[key_numbers[event.key]] = False
     simulate_cpu(cpu)
     draw_screen(state)
     pygame.display.update()
