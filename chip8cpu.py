@@ -138,16 +138,14 @@ class Chip8Cpu:
 
     def subtract(self, num1, num2):
         result = num1 - num2
+        self.state.registers[0xf] = 0x00 if result<0 else 0x01
         if result<0:
             result += 0x100
-        else:
-            self.state.registers[0xf] = 0x01
         return result
 
     def add(self, num1, num2):
         result = (num1+num2) & 0xff
-        if result < num1:
-            self.state.registers[0xf] = 0x01
+        self.state.registers[0xf] = 0x01 if result < num1 else 0x00
         return result
 
     def draw(self, register1, register2, mode):
