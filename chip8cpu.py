@@ -173,9 +173,9 @@ class Chip8Cpu:
 
     def handle_keyboard(self, register, mode):
         key = self.state.registers[register]
-        if mode == 0x9e and self.state.keys[key]:
+        if mode == 0x9e and self.get_key(key):
             self.state.PC += 2
-        elif mode == 0xa1 and not self.state.keys[key]:
+        elif mode == 0xa1 and not self.get_key(key):
             self.state.PC += 2
     
     def handle_memory_operation(self, register, mode):
@@ -183,7 +183,7 @@ class Chip8Cpu:
         if mode == 0x07:
             self.state.registers[register] = self.state.DT
         elif mode == 0x0a:
-            if not self.state.keys[registerValue]:
+            if not self.get_key(registerValue):
                 self.state.PC -= 2
         elif mode == 0x15:
             self.state.DT = registerValue
@@ -207,6 +207,12 @@ class Chip8Cpu:
             self.state.timer_counter = 9
             self.state.DT = max(self.state.DT - 1, 0)
             self.state.ST = max(self.state.ST - 1, 0)
+
+    def get_key(self, key):
+        if key<=0xf:
+            return self.state.keys[key]
+        else:
+            return False
 
 def to_bcd(number):
     a = floor(number/100)
