@@ -479,6 +479,7 @@ class CpuTest(unittest.TestCase):
         self.when_I_is(0x300)
         self.cpu.tick()
         self.assert_memory_value(0x300,0x01,0x02,0x03,0x04,0x00)
+        self.assertEqual(0x304,self.state.I)
 
     def test_f365_loads_r0_to_r3_from_memI_to_memIplus3(self):
         self.when_instruction_is(0x200, 0xf365)
@@ -486,6 +487,7 @@ class CpuTest(unittest.TestCase):
         self.when_memory_is(0x300,0x01,0x02,0x03,0x04,0x05)
         self.cpu.tick()
         self.assert_registers(0x0,0x01,0x02,0x03,0x04,0x00)
+        self.assertEqual(0x304,self.state.I)
 
     def test_tick_decreases_timer_counter(self):
         self.when_timer_counter_is(0x05)

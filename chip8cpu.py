@@ -200,8 +200,10 @@ class Chip8Cpu:
             self.state.memory[self.state.I : self.state.I + 2] = to_bcd(registerValue)
         elif mode == 0x55:
             self.state.memory[self.state.I : self.state.I + register + 1] = self.state.registers[:register+1]
+            self.state.I += register + 1
         elif mode == 0x65:
             self.state.registers[:register+1] = self.state.memory[self.state.I:self.state.I+register+1]
+            self.state.I += register + 1
     
     def handle_timers(self):
         if self.state.timer_counter>0:
