@@ -30,6 +30,8 @@ state = chip8cpu.Chip8State()
 cpu = chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
 
 load_program(state, sys.argv[1])
+if len(sys.argv) >= 3 and sys.argv[2] == 'schip':
+    cpu.schip=True
 
 playing = True
 while playing:

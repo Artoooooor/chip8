@@ -183,6 +183,14 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x09,self.state.registers[0xC])
         self.assertEqual(0x01,self.state.registers[0xF])
+    
+    def test_schip_mode_8cb6_shifts_rc(self):
+        self.when_instruction_is(0x200, 0x8CB6)
+        self.when_register_is(0xC,0x13)
+        self.when_schip_mode_on()
+        self.cpu.tick()
+        self.assertEqual(0x09,self.state.registers[0xC])
+        self.assertEqual(0x01,self.state.registers[0xF])
 
     def test_8cb7_subtracts_rC_from_rB_stores_in_rC_and_sets_rF_to_0_if_borrow_occurs(self):
         self.when_instruction_is(0x200, 0x8CB7)
@@ -211,6 +219,15 @@ class CpuTest(unittest.TestCase):
     def test_8cbe_sets_rC_to_rB_lshift_1_and_rF_to_MSB_1(self):
         self.when_instruction_is(0x200, 0x8CBe)
         self.when_register_is(0xB,0x81)
+        self.cpu.tick()
+        self.assertEqual(0x02,self.state.registers[0xC])
+        self.assertEqual(0x01,self.state.registers[0xF])
+
+
+    def test_schip_mode_8cbe_shifts_rc(self):
+        self.when_instruction_is(0x200, 0x8CBE)
+        self.when_register_is(0xC,0x81)
+        self.when_schip_mode_on()
         self.cpu.tick()
         self.assertEqual(0x02,self.state.registers[0xC])
         self.assertEqual(0x01,self.state.registers[0xF])
@@ -547,6 +564,9 @@ class CpuTest(unittest.TestCase):
 
     def when_timer_counter_is(self,value):
         self.state.timer_counter = value
+
+    def when_schip_mode_on(self):
+        self.cpu.schip = True
 
     def assert_zeros(self, start, length):
         for b in self.state.memory[start:start+length]:

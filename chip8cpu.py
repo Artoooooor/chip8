@@ -47,6 +47,7 @@ class Chip8Cpu:
     def __init__(self,state, rng):
         self.state=state
         self.rng = rng
+        self.schip = False
 
     def tick(self):
         instruction = (self.state.memory[self.state.PC] << 8) + self.state.memory[self.state.PC+1]
@@ -128,13 +129,15 @@ class Chip8Cpu:
         elif mode == 0x5:
             self.state.registers[register1] = self.subtract(value1, value2)
         elif mode == 0x6:
-            self.state.registers[register1] = value2 >> 1
-            self.state.registers[0xf] = value2 & 0x01
+            value = value1 if self.schip else value2
+            self.state.registers[register1] = value >> 1
+            self.state.registers[0xf] = value & 0x01
         elif mode == 0x7:
             self.state.registers[register1] = self.subtract(value2, value1)
         elif mode == 0xe:
-            self.state.registers[register1] = (value2 << 1) & 0xff
-            self.state.registers[0xf] = value2 >> 7
+            value = value1 if self.schip else value2
+            self.state.registers[register1] = (value << 1) & 0xff
+            self.state.registers[0xf] = value >> 7
 
     def subtract(self, num1, num2):
         result = num1 - num2
