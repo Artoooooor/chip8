@@ -1,5 +1,6 @@
 __pycache__
 *.c8
 *.ch8
+*.rom
 *.sc
 todo
