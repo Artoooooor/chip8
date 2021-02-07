@@ -183,7 +183,10 @@ class Chip8Cpu:
         if mode == 0x07:
             self.state.registers[register] = self.state.DT
         elif mode == 0x0a:
-            if not self.get_key(registerValue):
+            key = self.get_key_pressed()
+            if key is not None:
+                self.state.registers[register] = key
+            else:
                 self.state.PC -= 2
         elif mode == 0x15:
             self.state.DT = registerValue
@@ -207,6 +210,12 @@ class Chip8Cpu:
             self.state.timer_counter = 9
             self.state.DT = max(self.state.DT - 1, 0)
             self.state.ST = max(self.state.ST - 1, 0)
+
+    def get_key_pressed(self):
+        for key, keyState in enumerate(self.state.keys):
+            if keyState:
+                return key
+        return None
 
     def get_key(self, key):
         if key<=0xf:

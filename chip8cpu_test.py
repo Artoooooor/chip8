@@ -428,19 +428,18 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x2a,self.state.registers[0xa])
 
-    def test_fa0a_stops_if_key_from_ra_not_pressed(self):
+    def test_fa0a_stops_if_key_not_pressed(self):
         self.when_instruction_is(0x200, 0xfa0a)
         self.when_register_is(0xa,0x01)
-        self.when_key_is_not_pressed(0x1)
         self.cpu.tick()
         self.assertEqual(0x200,self.state.PC)
     
-    def test_fa0a_advances_if_key_from_ra_pressed(self):
+    def test_fa0a_advances_if_any_key_pressed(self):
         self.when_instruction_is(0x200, 0xfa0a)
-        self.when_register_is(0xa,0x01)
-        self.when_key_is_pressed(0x1)
+        self.when_key_is_pressed(0x4)
         self.cpu.tick()
         self.assertEqual(0x202,self.state.PC)
+        self.assertEqual(0x4, self.state.registers[0xa])
 
     def test_fa15_sets_dt_to_ra(self):
         self.when_instruction_is(0x200, 0xfa15)
