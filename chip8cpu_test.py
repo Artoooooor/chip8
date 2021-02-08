@@ -17,6 +17,7 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x202,self.state.PC)
         self.assert_zeros(self.state.screen_buffer_start, self.state.screen_buffer_length)
+        self.assertEqual(0x1000,len(self.state.memory))
 
     def test_00ee_pops_stack_to_pc_and_increments_by_2(self):
         self.when_stack_is(0x300)
@@ -481,6 +482,7 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_memory_value(0x300,0x01,0x02,0x03,0x04,0x00)
         self.assertEqual(0x304,self.state.I)
+        self.assertEqual(0x1000,len(self.state.memory))
 
     def test_f365_loads_r0_to_r3_from_memI_to_memIplus3(self):
         self.when_instruction_is(0x200, 0xf365)
@@ -489,6 +491,7 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assert_registers(0x0,0x01,0x02,0x03,0x04,0x00)
         self.assertEqual(0x304,self.state.I)
+        self.assertEqual(0x1000,len(self.state.memory))
 
     def test_tick_decreases_timer_counter(self):
         self.when_timer_counter_is(0x05)

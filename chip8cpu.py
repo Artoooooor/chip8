@@ -173,9 +173,9 @@ class Chip8Cpu:
 
     def handle_keyboard(self, register, mode):
         key = self.state.registers[register]
-        if mode == 0x9e and self.get_key(key):
+        if mode == 0x9e and self.is_key_pressed(key):
             self.state.PC += 2
-        elif mode == 0xa1 and not self.get_key(key):
+        elif mode == 0xa1 and not self.is_key_pressed(key):
             self.state.PC += 2
     
     def handle_memory_operation(self, register, mode):
@@ -199,10 +199,10 @@ class Chip8Cpu:
         elif mode == 0x33:
             self.state.memory[self.state.I : self.state.I + 3] = to_bcd(registerValue)
         elif mode == 0x55:
-            self.state.memory[self.state.I : self.state.I + register + 1] = self.state.registers[:register+1]
+            self.state.memory[self.state.I : self.state.I + register + 1] = self.state.registers[:register + 1]
             self.state.I += register + 1
         elif mode == 0x65:
-            self.state.registers[:register+1] = self.state.memory[self.state.I:self.state.I+register+1]
+            self.state.registers[:register + 1] = self.state.memory[self.state.I : self.state.I + register + 1]
             self.state.I += register + 1
     
     def handle_timers(self):
@@ -219,7 +219,7 @@ class Chip8Cpu:
                 return key
         return None
 
-    def get_key(self, key):
+    def is_key_pressed(self, key):
         if key<=0xf:
             return self.state.keys[key]
         else:
