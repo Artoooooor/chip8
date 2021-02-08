@@ -159,6 +159,7 @@ class Chip8Cpu:
         shift_in_byte = x & 0x07;
         height = min(mode, 0x20 - y)
         start = self.state.screen_buffer_start + x_byte_shift + y_byte_shift
+        self.state.registers[0xf] = 0x00
         for i in range(height):
             sprite_byte=self.state.memory[self.state.I + i]
             row_byte_shift = i << 3

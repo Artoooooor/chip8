@@ -392,6 +392,7 @@ class CpuTest(unittest.TestCase):
         self.when_memory_is(0x400, 0xff)
         self.when_register_is(0x1, 0x04)
         self.when_register_is(0x2, 0x00)
+        self.when_register_is(0xf, 0x01)
         self.when_memory_is(self.state.screen_buffer_start, 0xf0,0x0f)
         self.cpu.tick()
         self.assert_memory_column(self.state.screen_buffer_start, 0xff)
