@@ -168,7 +168,7 @@ class Chip8Cpu:
 
     def draw_byte(self, address, byte):
         self.state.memory[address] = self.state.memory[address] ^ byte
-        if self.state.memory[address] != byte:
+        if self.state.memory[address] & byte != byte:
             self.state.registers[0xf] = 0x01
 
     def handle_keyboard(self, register, mode):

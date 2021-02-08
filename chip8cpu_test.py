@@ -386,6 +386,19 @@ class CpuTest(unittest.TestCase):
         self.assert_memory_column(self.state.screen_buffer_start+1, 0x70)
         self.assertEqual(0x01,self.state.registers[0xf]);
 
+    def test_d121_sets_rf_to_0_if_1_is_not_changed_to_0_x_not_divisible_by_8(self):
+        self.when_instruction_is(0x200, 0xd121)
+        self.when_I_is(0x400)
+        self.when_memory_is(0x400, 0xff)
+        self.when_register_is(0x1, 0x04)
+        self.when_register_is(0x2, 0x00)
+        self.when_memory_is(self.state.screen_buffer_start, 0xf0,0x0f)
+        self.cpu.tick()
+        self.assert_memory_column(self.state.screen_buffer_start, 0xff)
+        self.assert_memory_column(self.state.screen_buffer_start+1, 0xff)
+        self.assertEqual(0x00,self.state.registers[0xf]);
+
+
     def test_d121_draws_last_group(self):
         self.when_instruction_is(0x200, 0xd121)
         self.when_I_is(0x400)
