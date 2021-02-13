@@ -44,6 +44,7 @@ def simulate_cpu(cpu):
 
 pygame.init()
 screen = pygame.display.set_mode((800,600))
+pygame.display.set_caption('Chip 8')
 clock = pygame.time.Clock()
 state = chip8cpu.Chip8State()
 cpu = chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))

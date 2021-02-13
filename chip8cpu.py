@@ -57,6 +57,7 @@ class Chip8Cpu:
         address = instruction & 0x0fff
         value = instruction & 0x00ff
         mode = instruction & 0x000f
+        halted = False
         if instruction == 0x00e0:
             self.state.memory[-0x100:] = [0]*0x100
         elif instruction == 0x00ee:
@@ -91,9 +92,11 @@ class Chip8Cpu:
         elif group == 0xe:
             self.handle_keyboard(register1, value)
         elif group == 0xf:
-            self.handle_memory_operation(register1, value)
-        self.state.PC += 2
-        self.handle_timers()
+            halted = self.handle_memory_operation(register1, value)
+        
+        if not halted:
+            self.state.PC += 2
+            self.handle_timers()
         
 
     def push(self, number):
@@ -180,6 +183,7 @@ class Chip8Cpu:
             self.state.PC += 2
     
     def handle_memory_operation(self, register, mode):
+        halted = False
         registerValue = self.state.registers[register]
         if mode == 0x07:
             self.state.registers[register] = self.state.DT
@@ -188,7 +192,7 @@ class Chip8Cpu:
             if key is not None:
                 self.state.registers[register] = key
             else:
-                self.state.PC -= 2
+                halted = True
         elif mode == 0x15:
             self.state.DT = registerValue
         elif mode == 0x18:
@@ -205,6 +209,7 @@ class Chip8Cpu:
         elif mode == 0x65:
             self.state.registers[:register + 1] = self.state.memory[self.state.I : self.state.I + register + 1]
             self.state.I += register + 1
+        return halted
     
     def handle_timers(self):
         if self.state.timer_counter>0:

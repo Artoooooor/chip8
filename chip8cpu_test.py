@@ -540,6 +540,16 @@ class CpuTest(unittest.TestCase):
         self.assertEqual(0x09,self.state.timer_counter)
         self.assertEqual(0x00,self.state.ST)
 
+    def test_dt_not_upgraded_when_cpu_halted(self):
+        self.when_instruction_is(0x200, 0xfa0a)
+        self.when_timer_counter_is(0x01)
+        self.when_dt_is(0x01)
+        self.when_st_is(0x01)
+        self.cpu.tick()
+        self.assertEqual(0x01,self.state.timer_counter)
+        self.assertEqual(0x01,self.state.DT)
+        self.assertEqual(0x01,self.state.ST)
+
     def when_instruction_is(self, address, instruction):
         self.when_memory_is(address,(instruction >> 8) & 0xff,instruction & 0xff)
 
