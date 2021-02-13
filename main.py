@@ -3,6 +3,7 @@ import chip8cpu
 import blitter
 import random
 import sys
+from config import get_keys_config
 
 CYCLES_PER_FRAME = 9
 
@@ -24,6 +25,12 @@ key_numbers = {
     pygame.K_e: 0xE,
     pygame.K_f: 0xF
 }
+
+def load_keys():
+    numbers_per_line = ((0x1,0x2,0x3,0xC), (0x4,0x5,0x6,0xD), (0x7,0x8,0x9,0xE), (0xA,0x0,0xB,0xF))
+
+    with open('keys.conf','r+') as file:
+        return get_keys_config(file.readlines(), key_numbers)
 
 surf = pygame.Surface((64,32))
 bigSurf = pygame.Surface((640,320))
@@ -57,6 +64,8 @@ for option in options:
         cpu.schip=True
     elif option=='--stop-every-frame':
         stop_every_frame = True
+
+key_numbers = load_keys()
 
 playing = True
 while playing:
