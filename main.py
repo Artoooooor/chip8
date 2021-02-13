@@ -53,6 +53,19 @@ def simulate_cpu(cpu):
     for i in range(CYCLES_PER_FRAME):
         cpu.tick()
 
+def update_sound():
+    if state.ST>0:
+        if not sound_playing:
+            sound.play()
+    else:
+        if sound_playing:
+            sound.stop()
+    return state.ST>0
+
+if len(sys.argv) == 1:
+    print('Usage: {} program [--schip] [--stop-every-frame]'.format(sys.argv[0]))
+    exit()
+
 pygame.init()
 screen = pygame.display.set_mode((800,600))
 pygame.display.set_caption('Chip 8')
@@ -76,14 +89,6 @@ pygame.mixer.init()
 sound = pygame.mixer.Sound('sound.mp3')
 sound_playing = False
 
-def update_sound():
-    if state.ST>0:
-        if not sound_playing:
-            sound.play()
-    else:
-        if sound_playing:
-            sound.stop()
-    return state.ST>0
 
 playing = True
 while playing:
