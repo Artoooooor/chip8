@@ -72,6 +72,19 @@ for option in options:
 key_numbers = load_keys()
 save_keys()
 
+pygame.mixer.init()
+sound = pygame.mixer.Sound('sound.mp3')
+sound_playing = False
+
+def update_sound():
+    if state.ST>0:
+        if not sound_playing:
+            sound.play()
+    else:
+        if sound_playing:
+            sound.stop()
+    return state.ST>0
+
 playing = True
 while playing:
     for event in pygame.event.get():
@@ -87,6 +100,8 @@ while playing:
                 state.keys[key_numbers[event.key]] = False
     if not stop_every_frame:
         simulate_cpu(cpu)
+
+    sound_playing = update_sound()
     draw_screen(state)    
     pygame.display.update()
     clock.tick(60)
