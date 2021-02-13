@@ -3,7 +3,7 @@ import chip8cpu
 import blitter
 import random
 import sys
-from config import get_keys_config
+from config import get_keys_config, keys_config_to_text
 
 CYCLES_PER_FRAME = 9
 
@@ -27,10 +27,14 @@ key_numbers = {
 }
 
 def load_keys():
-    numbers_per_line = ((0x1,0x2,0x3,0xC), (0x4,0x5,0x6,0xD), (0x7,0x8,0x9,0xE), (0xA,0x0,0xB,0xF))
-
-    with open('keys.conf','r+') as file:
-        return get_keys_config(file.readlines(), key_numbers)
+    try:
+        with open('keys.conf','r') as file:
+            return get_keys_config(file.readlines(), key_numbers)
+    except FileNotFoundError:
+        return key_numbers
+def save_keys():
+    with open('keys.conf','w') as file:
+        file.writelines(keys_config_to_text(key_numbers))
 
 surf = pygame.Surface((64,32))
 bigSurf = pygame.Surface((640,320))
@@ -66,6 +70,7 @@ for option in options:
         stop_every_frame = True
 
 key_numbers = load_keys()
+save_keys()
 
 playing = True
 while playing:

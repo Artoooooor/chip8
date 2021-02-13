@@ -1,6 +1,6 @@
 import unittest
 import pygame
-from config import get_keys_config
+from config import get_keys_config, keys_config_to_text
 
 DEFAULT = {
     pygame.K_0: 0x0,
@@ -40,10 +40,10 @@ EXPECTED = {
     pygame.K_p: 0xF
 }
 
-FIRST = 'a b c d'
-SECOND = 'e f g h'
-THIRD = 'i j k l'
-FOURTH = 'm n o p'
+FIRST = 'a b c d\n'
+SECOND = 'e f g h\n'
+THIRD = 'i j k l\n'
+FOURTH = 'm n o p\n'
 
 LINES =                 [FIRST, SECOND, THIRD, FOURTH]
 LINES_ONE_TOO_SHORT =   [FIRST, SECOND[:-2], THIRD, FOURTH]
@@ -73,6 +73,10 @@ class ConfigTest(unittest.TestCase):
        
     def test_duplicate_chars_result_in_default(self):
         self.assertEqual(DEFAULT, get_keys_config(LINES_ONE_DUPLICATE,DEFAULT))
+
+    def test_file_is_generated_based_on_key_config(self):
+        self.assertEqual([line for line in LINES], keys_config_to_text(EXPECTED))
+
 
 
 
