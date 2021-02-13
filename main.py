@@ -51,12 +51,12 @@ cpu = chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
 
 load_program(state, sys.argv[1])
 options = sys.argv[2:]
-frame = False
+stop_every_frame = False
 for option in options:
-    if option=='schip':
+    if option=='--schip':
         cpu.schip=True
-    elif option=='frame':
-        frame = True
+    elif option=='--stop-every-frame':
+        stop_every_frame = True
 
 playing = True
 while playing:
@@ -66,12 +66,12 @@ while playing:
         elif event.type == pygame.KEYDOWN:
             if event.key in key_numbers:
                 state.keys[key_numbers[event.key]] = True
-            elif event.key == pygame.K_SPACE and frame:
+            elif event.key == pygame.K_SPACE and stop_every_frame:
                 simulate_cpu(cpu)
         elif event.type == pygame.KEYUP:
             if event.key in key_numbers:
                 state.keys[key_numbers[event.key]] = False
-    if not frame:
+    if not stop_every_frame:
         simulate_cpu(cpu)
     draw_screen(state)    
     pygame.display.update()
