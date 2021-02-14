@@ -43,6 +43,17 @@ class Chip8State:
     def load_font(self, font):
         self.memory[:0x50] = font
 
+    def reset(self):
+        self.registers[:] = [0] * len(self.registers)
+        self.memory[:] = [0] * (len(self.memory))
+        self.DT = 0
+        self.ST = 0
+        self.I = 0
+        self.PC = 0x200
+        self.SP = 0
+        self.stack[:] = [0] * len(self.stack)
+        self.load_font(CHIP8_STANDARD_FONT)
+
 class Chip8Cpu:
     def __init__(self,state, rng):
         self.state=state

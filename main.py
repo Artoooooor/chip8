@@ -107,7 +107,10 @@ while playing:
         if event.type == pygame.QUIT:
             playing = False
         elif event.type == pygame.KEYDOWN:
-            if event.key in key_numbers:
+            if event.key == pygame.K_r and event.mod & pygame.KMOD_CTRL:
+                state.reset()
+                load_program(state, options['file'])
+            elif event.key in key_numbers:
                 state.keys[key_numbers[event.key]] = True
             elif event.key == pygame.K_SPACE and options['stop_every_frame']:
                 simulate_cpu(cpu)
