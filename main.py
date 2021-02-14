@@ -62,33 +62,44 @@ def update_sound():
             sound.stop()
     return state.ST>0
 
+def get_options(args):
+    options = args[2:]
+    values = {'schip':False,'stop_every_frame':False}
+    stop_every_frame = False
+    values['file'] = args[1]
+    for option in options:
+        if option=='--schip':
+            values['schip']=True
+        elif option=='--stop-every-frame':
+            values['stop_every_frame'] = True
+    return values
+
+def set_window_icon():
+    icon = pygame.image.load('icon.png')
+    pygame.display.set_icon(icon)
+
 if len(sys.argv) == 1:
     print('Usage: {} program [--schip] [--stop-every-frame]'.format(sys.argv[0]))
     exit()
 
 pygame.init()
+set_window_icon()
 screen = pygame.display.set_mode((800,600))
 pygame.display.set_caption('Chip 8')
 clock = pygame.time.Clock()
-state = chip8cpu.Chip8State()
-cpu = chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
-
-load_program(state, sys.argv[1])
-options = sys.argv[2:]
-stop_every_frame = False
-for option in options:
-    if option=='--schip':
-        cpu.schip=True
-    elif option=='--stop-every-frame':
-        stop_every_frame = True
-
-key_numbers = load_keys()
-save_keys()
 
 pygame.mixer.init()
 sound = pygame.mixer.Sound('sound.mp3')
 sound_playing = False
 
+options = get_options(sys.argv)
+
+state = chip8cpu.Chip8State()
+cpu = chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
+cpu.schip = options['schip']
+load_program(state, options['file'])
+key_numbers = load_keys()
+save_keys()
 
 playing = True
 while playing:
@@ -98,12 +109,12 @@ while playing:
         elif event.type == pygame.KEYDOWN:
             if event.key in key_numbers:
                 state.keys[key_numbers[event.key]] = True
-            elif event.key == pygame.K_SPACE and stop_every_frame:
+            elif event.key == pygame.K_SPACE and options['stop_every_frame']:
                 simulate_cpu(cpu)
         elif event.type == pygame.KEYUP:
             if event.key in key_numbers:
                 state.keys[key_numbers[event.key]] = False
-    if not stop_every_frame:
+    if not options['stop_every_frame']:
         simulate_cpu(cpu)
 
     sound_playing = update_sound()
