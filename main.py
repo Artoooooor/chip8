@@ -1,8 +1,8 @@
 import pygame
-import random
-import sys
-import chip8.blitter
-import chip8.chip8cpu
+from random import randrange
+from sys import argv
+from chip8.blitter import blit_screen
+from chip8.chip8cpu import Chip8State, Chip8Cpu
 from chip8.config import get_keys_config, keys_config_to_text
 
 CYCLES_PER_FRAME = 9
@@ -42,7 +42,7 @@ surf = pygame.Surface((64,32))
 bigSurf = pygame.Surface((640,320))
 def draw_screen(state):
     arr = pygame.PixelArray(surf)
-    chip8.blitter.blit_screen(state, surf.map_rgb(0,50,0), surf.map_rgb(0,255,0), arr)
+    blit_screen(state, surf.map_rgb(0,50,0), surf.map_rgb(0,255,0), arr)
     pygame.transform.scale(surf,(640,320), bigSurf)
     screen.blit(bigSurf, (80,20))
 
@@ -80,8 +80,8 @@ def set_window_icon():
     icon = pygame.image.load('icon.png')
     pygame.display.set_icon(icon)
 
-if len(sys.argv) == 1:
-    print('Usage: {} program [--schip] [--stop-every-frame]'.format(sys.argv[0]))
+if len(argv) == 1:
+    print('Usage: {} program [--schip] [--stop-every-frame]'.format(argv[0]))
     exit()
 
 def get_command(key):
@@ -103,10 +103,10 @@ pygame.mixer.init()
 sound = pygame.mixer.Sound('sound.mp3')
 sound_playing = False
 
-options = get_options(sys.argv)
+options = get_options(argv)
 
-state = chip8.chip8cpu.Chip8State()
-cpu = chip8.chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
+state = Chip8State()
+cpu = Chip8Cpu(state, lambda: randrange(0x00,0x100))
 cpu.schip = options['schip']
 key_numbers = load_keys()
 reset()
