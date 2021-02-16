@@ -18,7 +18,9 @@ DEFAULT = {
     pygame.K_c: 0xC,
     pygame.K_d: 0xD,
     pygame.K_e: 0xE,
-    pygame.K_f: 0xF
+    pygame.K_f: 0xF,
+    pygame.K_SPACE: 'step',
+    pygame.K_p: 'reset',
 }
 
 EXPECTED = {
@@ -37,20 +39,24 @@ EXPECTED = {
     pygame.K_m: 0xA,
     pygame.K_n: 0x0,
     pygame.K_o: 0xB,
-    pygame.K_p: 0xF
+    pygame.K_p: 0xF,
+    pygame.K_SPACE: 'step',
+    pygame.K_q: 'reset',
 }
 
 FIRST = 'a b c d\n'
 SECOND = 'e f g h\n'
 THIRD = 'i j k l\n'
 FOURTH = 'm n o p\n'
+FIFTH = 'SPACE\n'
+SIXTH = 'q\n'
 
-LINES =                 [FIRST, SECOND, THIRD, FOURTH]
-LINES_ONE_TOO_SHORT =   [FIRST, SECOND[:-2], THIRD, FOURTH]
-LINES_ONE_TOO_LONG =    [FIRST, SECOND + ' b' , THIRD, FOURTH]
-LINES_ONE_TWO_SPACES =  [FIRST, SECOND.replace(' ','  '), THIRD, FOURTH]
-LINES_ONE_TAB =         [FIRST, SECOND.replace(' ','\t'), THIRD, FOURTH]
-LINES_ONE_DUPLICATE =   [FIRST, SECOND.replace('f', 'e'), THIRD, FOURTH]
+LINES =                 [FIRST, SECOND, THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_TOO_SHORT =   [FIRST, SECOND[:-2], THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_TOO_LONG =    [FIRST, SECOND + ' b' , THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_TWO_SPACES =  [FIRST, SECOND.replace(' ','  '), THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_TAB =         [FIRST, SECOND.replace(' ','\t'), THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_DUPLICATE =   [FIRST, SECOND.replace('f', 'e'), THIRD, FOURTH, FIFTH, SIXTH]
 
 class ConfigTest(unittest.TestCase):
     def test_default_returned_for_empty_lines(self):

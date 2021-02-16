@@ -23,7 +23,9 @@ key_numbers = {
     pygame.K_c: 0xC,
     pygame.K_d: 0xD,
     pygame.K_e: 0xE,
-    pygame.K_f: 0xF
+    pygame.K_f: 0xF,
+    pygame.K_SPACE: 'step',
+    pygame.K_p: 'reset',
 }
 
 def load_keys():
@@ -82,10 +84,19 @@ if len(sys.argv) == 1:
     print('Usage: {} program [--schip] [--stop-every-frame]'.format(sys.argv[0]))
     exit()
 
+def get_command(key):
+    if key in key_numbers:
+        return key_numbers[key]
+    return None
+
+def reset():
+    state.reset()
+    load_program(state, options['file'])
+
 pygame.init()
 set_window_icon()
-screen = pygame.display.set_mode((800,600))
 pygame.display.set_caption('Chip 8')
+screen = pygame.display.set_mode((800,600))
 clock = pygame.time.Clock()
 
 pygame.mixer.init()
@@ -97,9 +108,8 @@ options = get_options(sys.argv)
 state = chip8cpu.Chip8State()
 cpu = chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
 cpu.schip = options['schip']
-load_program(state, options['file'])
 key_numbers = load_keys()
-save_keys()
+reset()
 
 playing = True
 while playing:
@@ -107,16 +117,18 @@ while playing:
         if event.type == pygame.QUIT:
             playing = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r and event.mod & pygame.KMOD_CTRL:
-                state.reset()
-                load_program(state, options['file'])
-            elif event.key in key_numbers:
+            command = get_command(event.key)
+            if command == 'step':
+                if options['stop_every_frame']:
+                    simulate_cpu(cpu)
+            elif command == 'reset':
+                reset()
+            else:
                 state.keys[key_numbers[event.key]] = True
-            elif event.key == pygame.K_SPACE and options['stop_every_frame']:
-                simulate_cpu(cpu)
         elif event.type == pygame.KEYUP:
-            if event.key in key_numbers:
-                state.keys[key_numbers[event.key]] = False
+            command = get_command(event.key)
+            if command in state.keys:
+                state.keys[command] = False
     if not options['stop_every_frame']:
         simulate_cpu(cpu)
 
@@ -124,5 +136,6 @@ while playing:
     draw_screen(state)    
     pygame.display.update()
     clock.tick(60)
-pygame.quit()
 
+save_keys()
+pygame.quit()
