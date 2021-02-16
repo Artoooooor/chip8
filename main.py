@@ -1,9 +1,9 @@
 import pygame
-import chip8cpu
-import blitter
 import random
 import sys
-from config import get_keys_config, keys_config_to_text
+import chip8.blitter
+import chip8.chip8cpu
+from chip8.config import get_keys_config, keys_config_to_text
 
 CYCLES_PER_FRAME = 9
 
@@ -42,7 +42,7 @@ surf = pygame.Surface((64,32))
 bigSurf = pygame.Surface((640,320))
 def draw_screen(state):
     arr = pygame.PixelArray(surf)
-    blitter.blit_screen(state, surf.map_rgb(0,50,0), surf.map_rgb(0,255,0), arr)
+    chip8.blitter.blit_screen(state, surf.map_rgb(0,50,0), surf.map_rgb(0,255,0), arr)
     pygame.transform.scale(surf,(640,320), bigSurf)
     screen.blit(bigSurf, (80,20))
 
@@ -105,8 +105,8 @@ sound_playing = False
 
 options = get_options(sys.argv)
 
-state = chip8cpu.Chip8State()
-cpu = chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
+state = chip8.chip8cpu.Chip8State()
+cpu = chip8.chip8cpu.Chip8Cpu(state, lambda: random.randrange(0x00,0x100))
 cpu.schip = options['schip']
 key_numbers = load_keys()
 reset()
