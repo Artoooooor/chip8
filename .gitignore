@@ -4,3 +4,4 @@ __pycache__
 *.rom
 *.sc
 todo
+venv/
