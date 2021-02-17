@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from blitter import blit_screen
+from chip8.blitter import blit_screen
 
 class StateMock:
     def __init__(self):

@@ -1,6 +1,6 @@
 import unittest
 import pygame
-from config import get_keys_config, keys_config_to_text
+from chip8.config import get_keys_config, keys_config_to_text
 
 DEFAULT = {
     pygame.K_0: 0x0,

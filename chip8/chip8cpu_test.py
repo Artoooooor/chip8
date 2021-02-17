@@ -1,6 +1,6 @@
 import unittest
 
-from chip8cpu import Chip8Cpu, Chip8State
+from chip8.chip8cpu import Chip8Cpu, Chip8State
 
 class CpuTest(unittest.TestCase):
 
