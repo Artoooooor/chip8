@@ -5,3 +5,4 @@ __pycache__
 *.sc
 todo
 venv/
+.vscode
