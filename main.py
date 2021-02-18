@@ -28,75 +28,89 @@ key_numbers = {
     pygame.K_p: 'reset',
 }
 
+
 def load_keys():
     try:
-        with open('keys.conf','r') as file:
+        with open('keys.conf', 'r') as file:
             return get_keys_config(file.readlines(), key_numbers)
     except FileNotFoundError:
         return key_numbers
+
+
 def save_keys():
-    with open('keys.conf','w') as file:
+    with open('keys.conf', 'w') as file:
         file.writelines(keys_config_to_text(key_numbers))
 
-surf = pygame.Surface((64,32))
-bigSurf = pygame.Surface((640,320))
+
+surf = pygame.Surface((64, 32))
+bigSurf = pygame.Surface((640, 320))
+
+
 def draw_screen(state):
     arr = pygame.PixelArray(surf)
-    blit_screen(state, surf.map_rgb(0,50,0), surf.map_rgb(0,255,0), arr)
-    pygame.transform.scale(surf,(640,320), bigSurf)
-    screen.blit(bigSurf, (80,20))
+    blit_screen(state, surf.map_rgb(0, 50, 0), surf.map_rgb(0, 255, 0), arr)
+    pygame.transform.scale(surf, (640, 320), bigSurf)
+    screen.blit(bigSurf, (80, 20))
+
 
 def load_program(state, name):
     with open(name, "rb") as inFile:
         program = inFile.read()
         state.load_program(program)
 
+
 def simulate_cpu(cpu):
     for i in range(CYCLES_PER_FRAME):
         cpu.tick()
 
+
 def update_sound():
-    if state.ST>0:
+    if state.ST > 0:
         if not sound_playing:
             sound.play()
     else:
         if sound_playing:
             sound.stop()
-    return state.ST>0
+    return state.ST > 0
+
 
 def get_options(args):
     options = args[2:]
-    values = {'schip':False,'stop_every_frame':False}
-    stop_every_frame = False
+    values = {'schip': False, 'stop_every_frame': False}
     values['file'] = args[1]
     for option in options:
-        if option=='--schip':
-            values['schip']=True
-        elif option=='--stop-every-frame':
+        if option == '--schip':
+            values['schip'] = True
+        elif option == '--stop-every-frame':
             values['stop_every_frame'] = True
     return values
+
 
 def set_window_icon():
     icon = pygame.image.load('icon.png')
     pygame.display.set_icon(icon)
 
+
 if len(argv) == 1:
     print('Usage: {} program [--schip] [--stop-every-frame]'.format(argv[0]))
     exit()
+
 
 def get_command(key):
     if key in key_numbers:
         return key_numbers[key]
     return None
 
+
 def reset():
     state.reset()
     load_program(state, options['file'])
 
+
 pygame.init()
 set_window_icon()
 pygame.display.set_caption('Chip 8')
-screen = pygame.display.set_mode((800,600))
+screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 
 pygame.mixer.init()
@@ -106,7 +120,7 @@ sound_playing = False
 options = get_options(argv)
 
 state = Chip8State()
-cpu = Chip8Cpu(state, lambda: randrange(0x00,0x100))
+cpu = Chip8Cpu(state, lambda: randrange(0x00, 0x100))
 cpu.schip = options['schip']
 key_numbers = load_keys()
 reset()
@@ -133,7 +147,7 @@ while playing:
         simulate_cpu(cpu)
 
     sound_playing = update_sound()
-    draw_screen(state)    
+    draw_screen(state)
     pygame.display.update()
     clock.tick(60)
 
