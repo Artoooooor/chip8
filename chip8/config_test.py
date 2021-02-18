@@ -51,39 +51,64 @@ FOURTH = 'm n o p\n'
 FIFTH = 'SPACE\n'
 SIXTH = 'q\n'
 
-LINES =                 [FIRST, SECOND, THIRD, FOURTH, FIFTH, SIXTH]
-LINES_ONE_TOO_SHORT =   [FIRST, SECOND[:-2], THIRD, FOURTH, FIFTH, SIXTH]
-LINES_ONE_TOO_LONG =    [FIRST, SECOND + ' b' , THIRD, FOURTH, FIFTH, SIXTH]
-LINES_ONE_TWO_SPACES =  [FIRST, SECOND.replace(' ','  '), THIRD, FOURTH, FIFTH, SIXTH]
-LINES_ONE_TAB =         [FIRST, SECOND.replace(' ','\t'), THIRD, FOURTH, FIFTH, SIXTH]
-LINES_ONE_DUPLICATE =   [FIRST, SECOND.replace('f', 'e'), THIRD, FOURTH, FIFTH, SIXTH]
+LINES = [FIRST, SECOND, THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_TOO_SHORT = [FIRST, SECOND[:-2], THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_TOO_LONG = [FIRST, SECOND + ' b', THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_TWO_SPACES = [
+    FIRST,
+    SECOND.replace(' ', '  '),
+    THIRD,
+    FOURTH,
+    FIFTH,
+    SIXTH
+]
+LINES_ONE_TAB = [FIRST, SECOND.replace(' ', '\t'), THIRD, FOURTH, FIFTH, SIXTH]
+LINES_ONE_DUPLICATE = [
+    FIRST,
+    SECOND.replace('f', 'e'),
+    THIRD,
+    FOURTH,
+    FIFTH,
+    SIXTH
+]
+
 
 class ConfigTest(unittest.TestCase):
     def test_default_returned_for_empty_lines(self):
-        self.assertEqual(DEFAULT,get_keys_config([],DEFAULT))
+        self.assertEqual(DEFAULT, get_keys_config([], DEFAULT))
 
     def test_keys_are_read_in_proper_order(self):
-        self.assertEqual(EXPECTED, get_keys_config(LINES,DEFAULT))
+        self.assertEqual(EXPECTED, get_keys_config(LINES, DEFAULT))
 
     def test_too_short_line_results_in_default(self):
-        self.assertEqual(DEFAULT, get_keys_config(LINES_ONE_TOO_SHORT,DEFAULT))
+        self.assertEqual(
+            DEFAULT,
+            get_keys_config(LINES_ONE_TOO_SHORT, DEFAULT)
+        )
 
     def test_too_long_line_results_in_default(self):
-        self.assertEqual(DEFAULT, get_keys_config(LINES_ONE_TOO_LONG,DEFAULT))
+        self.assertEqual(DEFAULT, get_keys_config(LINES_ONE_TOO_LONG, DEFAULT))
 
     def test_two_spaces_count_as_one(self):
-        self.assertEqual(EXPECTED, get_keys_config(LINES_ONE_TWO_SPACES,DEFAULT))
-    
+        self.assertEqual(
+            EXPECTED,
+            get_keys_config(LINES_ONE_TWO_SPACES, DEFAULT)
+        )
+
     def test_tab_counts_as_space(self):
-        self.assertEqual(EXPECTED, get_keys_config(LINES_ONE_TAB,DEFAULT))
-       
+        self.assertEqual(EXPECTED, get_keys_config(LINES_ONE_TAB, DEFAULT))
+
     def test_duplicate_chars_result_in_default(self):
-        self.assertEqual(DEFAULT, get_keys_config(LINES_ONE_DUPLICATE,DEFAULT))
+        self.assertEqual(
+            DEFAULT,
+            get_keys_config(LINES_ONE_DUPLICATE, DEFAULT)
+        )
 
     def test_file_is_generated_based_on_key_config(self):
-        self.assertEqual([line for line in LINES], keys_config_to_text(EXPECTED))
-
-
+        self.assertEqual(
+            [line for line in LINES],
+            keys_config_to_text(EXPECTED)
+        )
 
 
 if __name__ == '__main__':
