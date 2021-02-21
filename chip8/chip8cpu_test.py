@@ -3,11 +3,23 @@ import unittest
 from chip8.chip8cpu import Chip8Cpu, Chip8State
 
 
+class GpuMock:
+    def __init__(self):
+        self.lastAddress = None
+
+    def draw(self, address, x, y, height):
+        self.lastAddress = address
+        self.lastX = x
+        self.lastY = y
+        self.lastHeight = height
+
+
 class CpuTest(unittest.TestCase):
 
     def setUp(self):
         self.state = Chip8State()
-        self.cpu = Chip8Cpu(self.state, self.get_random_mock)
+        self.gpu = GpuMock()
+        self.cpu = Chip8Cpu(self.state, self.get_random_mock, self.gpu)
 
     def get_random_mock(self):
         return self.random_mock_number
@@ -283,148 +295,13 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x2a, self.state.registers[0xa])
 
-    def test_d000_draws_nothing(self):
-        self.when_instruction_is(0x200, 0xd000)
+    def test_d123_draws_sprite(self):
+        self.when_instruction_is(0x200, 0xd123)
+        self.when_register_is(0x1, 0x23)
+        self.when_register_is(0x2, 0x12)
         self.when_I_is(0x400)
-        self.when_memory_is(0x400, 0xff)
         self.cpu.tick()
-        self.assert_memory_column(self.state.screen_buffer_start, 0x00)
-        self.assertEqual(0x00, self.state.registers[0xf])
-
-    def test_d001_draws_one_byte(self):
-        self.when_instruction_is(0x200, 0xd001)
-        self.when_I_is(0x400)
-        self.when_memory_is(0x400, 0x01)
-        self.cpu.tick()
-        self.assert_memory_column(self.state.screen_buffer_start, 0x01)
-        self.assertEqual(0x00, self.state.registers[0xf])
-
-    def test_d002_draws_two_lines(self):
-        self.when_instruction_is(0x200, 0xd002)
-        self.when_I_is(0x400)
-        self.when_memory_is(0x400, 0x01, 0x02)
-        self.cpu.tick()
-        self.assert_memory_column(self.state.screen_buffer_start, 0x01, 0x02)
-
-    def test_d102_draws_sprite_x_shifted(self):
-        self.when_instruction_is(0x200, 0xd102)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x08)
-        self.when_memory_is(0x400, 0x01, 0x02)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start + 0x01, 0x01, 0x02)
-
-    def test_d122_draws_sprite_y_shifted(self):
-        self.when_instruction_is(0x200, 0xd122)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x00)
-        self.when_register_is(0x2, 0x02)
-        self.when_memory_is(0x400, 0x01, 0x02)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start + 0x10, 0x01, 0x02)
-
-    def test_d102_draws_sprite_x_bigger_than_64(self):
-        self.when_instruction_is(0x200, 0xd102)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x88)
-        self.when_memory_is(0x400, 0x01, 0x02)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start + 0x01, 0x01, 0x02)
-
-    def test_d122_draws_sprite_y_shifted_bigger_than_32(self):
-        self.when_instruction_is(0x200, 0xd122)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x00)
-        self.when_register_is(0x2, 0x42)
-        self.when_memory_is(0x400, 0x01, 0x02)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start + 0x10, 0x01, 0x02)
-
-    def test_d124_draws_sprite_y_shifted_partially_visible(self):
-        self.when_instruction_is(0x200, 0xd124)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x00)
-        self.when_register_is(0x2, 0x1e)
-        self.when_memory_is(0x400, 0x01, 0x02, 0x03, 0x04)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start + (0x1e << 3), 0x01, 0x02)
-
-    def test_d122_draws_sprite_x_not_divisible_by_8(self):
-        self.when_instruction_is(0x200, 0xd122)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x03)
-        self.when_register_is(0x2, 0x00)
-        self.when_memory_is(0x400, 0xff, 0xaf)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start, 0xff >> 3, 0xaf >> 3)
-        self.assert_memory_column(
-            self.state.screen_buffer_start + 1,
-            (0xff << 5) & 0xff,
-            (0xaf << 5) & 0xff
-        )
-
-    def test_d122_draws_sprite_x_not_divisible_by_8_partially_visible(self):
-        self.when_instruction_is(0x200, 0xd122)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x3f)
-        self.when_register_is(0x2, 0x00)
-        self.when_memory_is(0x400, 0xff, 0xff)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start+0x07, 0x01, 0x01)
-        self.assert_memory_column(self.state.screen_buffer_start, *[0x00]*32)
-
-    def test_d121_sets_rf_to_1_if_1_is_changed_to_0(self):
-        self.when_instruction_is(0x200, 0xd121)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x00)
-        self.when_register_is(0x2, 0x00)
-        self.when_memory_is(0x400, 0xff)
-        self.when_memory_is(self.state.screen_buffer_start, 0x01)
-        self.cpu.tick()
-        self.assert_memory_column(self.state.screen_buffer_start, 0xfe)
-        self.assertEqual(0x01, self.state.registers[0xf])
-
-    def test_d121_sets_rf_to_1_if_1_is_changed_to_0_x_not_divisible_by_8(self):
-        self.when_instruction_is(0x200, 0xd121)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x04)
-        self.when_register_is(0x2, 0x00)
-        self.when_memory_is(0x400, 0xff)
-        self.when_memory_is(self.state.screen_buffer_start, 0x01, 0x80)
-        self.cpu.tick()
-        self.assert_memory_column(self.state.screen_buffer_start, 0x0e)
-        self.assert_memory_column(self.state.screen_buffer_start+1, 0x70)
-        self.assertEqual(0x01, self.state.registers[0xf])
-
-    def test_d121_sets_rf_to_0_if_1_not_changed_to_0_x_not_divisible_by_8(self):
-        self.when_instruction_is(0x200, 0xd121)
-        self.when_I_is(0x400)
-        self.when_memory_is(0x400, 0xff)
-        self.when_register_is(0x1, 0x04)
-        self.when_register_is(0x2, 0x00)
-        self.when_register_is(0xf, 0x01)
-        self.when_memory_is(self.state.screen_buffer_start, 0xf0, 0x0f)
-        self.cpu.tick()
-        self.assert_memory_column(self.state.screen_buffer_start, 0xff)
-        self.assert_memory_column(self.state.screen_buffer_start+1, 0xff)
-        self.assertEqual(0x00, self.state.registers[0xf])
-
-    def test_d121_draws_last_group(self):
-        self.when_instruction_is(0x200, 0xd121)
-        self.when_I_is(0x400)
-        self.when_register_is(0x1, 0x38)
-        self.when_register_is(0x2, 0x1f)
-        self.when_memory_is(0x400, 0xff)
-        self.cpu.tick()
-        self.assert_memory_column(
-            self.state.screen_buffer_start + 0x1f * 0x08 + (0x38 >> 3), 0xff)
+        self.assertDrawn(0x400, 0x23, 0x12, 0x3)
 
     def test_ea9e_skips_instruction_if_key_from_ra_is_pressed(self):
         self.when_instruction_is(0x200, 0xea9e)
@@ -632,13 +509,15 @@ class CpuTest(unittest.TestCase):
         for i, value in enumerate(values):
             self.assertEqual(value, self.state.memory[address+i])
 
-    def assert_memory_column(self, address, *values):
-        for i, value in enumerate(values):
-            self.assertEqual(value, self.state.memory[address + i * 0x008])
-
     def assert_registers(self, first, *values):
         for i, value in enumerate(values):
             self.assertEqual(value, self.state.registers[first + i])
+
+    def assertDrawn(self, address, x, y, height):
+        self.assertEqual(address, self.gpu.lastAddress)
+        self.assertEqual(x, self.gpu.lastX)
+        self.assertEqual(y, self.gpu.lastY)
+        self.assertEqual(height, self.gpu.lastHeight)
 
 
 STANDARD_FONT = [0xF0, 0x90, 0x90, 0x90, 0xF0, 0x20, 0x60, 0x20, 0x20, 0x70, 0xF0, 0x10, 0xF0, 0x80, 0xF0, 0xF0, 0x10, 0xF0, 0x10, 0xF0, 0x90, 0x90, 0xF0, 0x10, 0x10, 0xF0, 0x80, 0xF0, 0x10, 0xF0, 0xF0, 0x80, 0xF0, 0x90, 0xF0, 0xF0, 0x10, 0x20, 0x40,

@@ -3,6 +3,7 @@ from random import randrange
 from sys import argv
 from chip8.blitter import blit_screen
 from chip8.chip8cpu import Chip8State, Chip8Cpu
+from chip8.chip8gpu import Chip8Gpu
 from chip8.config import get_keys_config, keys_config_to_text
 
 CYCLES_PER_FRAME = 9
@@ -120,7 +121,8 @@ sound_playing = False
 options = get_options(argv)
 
 state = Chip8State()
-cpu = Chip8Cpu(state, lambda: randrange(0x00, 0x100))
+gpu = Chip8Gpu(state)
+cpu = Chip8Cpu(state, lambda: randrange(0x00, 0x100), gpu)
 cpu.schip = options['schip']
 key_numbers = load_keys()
 reset()

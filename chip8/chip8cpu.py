@@ -57,9 +57,10 @@ class Chip8State:
 
 
 class Chip8Cpu:
-    def __init__(self, state, rng):
+    def __init__(self, state, rng, gpu):
         self.state = state
         self.rng = rng
+        self.gpu = gpu
         self.schip = False
 
     def tick(self):
@@ -178,26 +179,8 @@ class Chip8Cpu:
     def draw(self, register1, register2, mode):
         x = self.state.registers[register1] & 0x3f
         y = self.state.registers[register2] & 0x1f
-        x_byte_shift = x >> 3
-        y_byte_shift = y << 3
-        shift_in_byte = x & 0x07
-        height = min(mode, 0x20 - y)
-        start = self.state.screen_buffer_start + x_byte_shift + y_byte_shift
-        self.state.registers[0xf] = 0x00
-        for i in range(height):
-            sprite_byte = self.state.memory[self.state.I + i]
-            row_byte_shift = i << 3
-            self.draw_byte(start + row_byte_shift,
-                           sprite_byte >> shift_in_byte)
-            if x < 0x38:
-                self.draw_byte(start + row_byte_shift + 1,
-                               sprite_byte << (8 - shift_in_byte) & 0xff)
-
-    def draw_byte(self, address, byte):
-        self.state.memory[address] = self.state.memory[address] ^ byte
-        if self.state.memory[address] & byte != byte:
-            self.state.registers[0xf] = 0x01
-
+        self.gpu.draw(self.state.I, x, y, mode)
+        
     def handle_keyboard(self, register, mode):
         key = self.state.registers[register]
         if mode == 0x9e and self.is_key_pressed(key):
