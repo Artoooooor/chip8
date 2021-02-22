@@ -129,14 +129,14 @@ reset()
 
 playing = True
 while playing:
+    step = not options['stop_every_frame']
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             playing = False
         elif event.type == pygame.KEYDOWN:
             command = get_command(event.key)
             if command == 'step':
-                if options['stop_every_frame']:
-                    simulate_cpu(cpu)
+                step = True
             elif command == 'reset':
                 reset()
             else:
@@ -145,7 +145,7 @@ while playing:
             command = get_command(event.key)
             if command in state.keys:
                 state.keys[command] = False
-    if not options['stop_every_frame']:
+    if step:
         simulate_cpu(cpu)
 
     sound_playing = update_sound()
