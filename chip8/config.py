@@ -8,19 +8,24 @@ numbers_per_line = (
     ('reset',)
 )
 
+INVALID_LENGTH = 'Line {} \'{}\' has invalid length - use exactly {} entries'
+DUPLICATE_KEY = 'Duplicate key {} in line {} of config \'{}\''
+
 
 def get_keys_config(lines, default):
     if lines:
         keys = {}
         for i, line in enumerate(lines):
             chars = [char for char in line.split() if len(char) > 0]
-            if len(chars) != len(numbers_per_line[i]):
-                print('Line {} \'{}\' has invalid length - use exactly {} entries'.format(i + 1, line, len(numbers_per_line[i])))
+            actual_length = len(chars)
+            expected_length = len(numbers_per_line[i])
+            if actual_length != expected_length:
+                print(INVALID_LENGTH.format(i + 1, line, expected_length))
                 return default
             for (char, number) in zip(chars, numbers_per_line[i]):
                 key = getattr(pygame, 'K_' + char)
                 if key in keys:
-                    print('Duplicate key {} in line {} of config \'{}\''.format(char, i + 1, line))
+                    print(DUPLICATE_KEY.format(char, i + 1, line))
                     return default
                 keys[key] = number
 
@@ -34,7 +39,8 @@ def reverse_dictionary(dict):
 
 
 def get_key_numbers_from_pygame():
-    return {key[2:]: value for key, value in vars(pygame).items() if 'K_' in key}
+    key_items = [item for item in vars(pygame).items() if 'K_' in item[0]]
+    return {key[2:]: value for key, value in key_items}
 
 
 def keys_config_to_text(key_config):
@@ -46,6 +52,7 @@ def keys_config_to_text(key_config):
         return key_names[real_key_number]
 
     def get_text_line(number_line):
-        return ' '.join([get_key_name(chip8_key_number) for chip8_key_number in number_line]) + '\n'
+        keys = [get_key_name(chip8_key) for chip8_key in number_line]
+        return ' '.join(keys) + '\n'
     lines = [get_text_line(number_line) for number_line in numbers_per_line]
     return lines
