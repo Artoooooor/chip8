@@ -167,8 +167,8 @@ class Chip8Cpu:
         key = self.get_key_pressed()
         if key is not None:
             self.state.registers[register] = key
-            return True
-        return False
+            return False
+        return True
 
     def handle_timers(self):
         if self.state.timer_counter > 0:
