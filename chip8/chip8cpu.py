@@ -40,8 +40,8 @@ class Chip8Cpu:
         elif group == 0x6:
             self.state.registers[register1] = value
         elif group == 0x7:
-            self.state.registers[register1] = (
-                self.state.registers[register1] + value) & 0xff
+            sum = (self.state.registers[register1] + value) & 0xff
+            self.state.registers[register1] = sum
         elif group == 0x8:
             self.handle_alu(register1, register2, mode)
         elif group == 0x9 and instruction & 0x000f == 0:
@@ -139,11 +139,7 @@ class Chip8Cpu:
         if mode == 0x07:
             self.state.registers[register] = self.state.DT
         elif mode == 0x0a:
-            key = self.get_key_pressed()
-            if key is not None:
-                self.state.registers[register] = key
-            else:
-                halted = True
+            halted = self.halt_until_key_pressed(register)
         elif mode == 0x15:
             self.state.DT = registerValue
         elif mode == 0x18:
@@ -166,6 +162,13 @@ class Chip8Cpu:
             self.state.registers[:length] = subarray
             self.state.I += register + 1
         return halted
+
+    def halt_until_key_pressed(self, register):
+        key = self.get_key_pressed()
+        if key is not None:
+            self.state.registers[register] = key
+            return True
+        return False
 
     def handle_timers(self):
         if self.state.timer_counter > 0:
