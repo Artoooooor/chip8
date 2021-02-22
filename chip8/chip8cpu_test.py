@@ -310,7 +310,7 @@ class CpuTest(unittest.TestCase):
         self.cpu.tick()
         self.assertEqual(0x204, self.state.PC)
 
-    def test_ea9e_does_not_skip_instruction_if_key_from_ra_is_not_pressed(self):
+    def test_ea9e_does_not_skip_instruction_if_key_from_ra_not_pressed(self):
         self.when_instruction_is(0x200, 0xea9e)
         self.when_register_is(0xa, 0x01)
         self.when_key_is_not_pressed(0x1)
@@ -445,14 +445,14 @@ class CpuTest(unittest.TestCase):
         self.assertEqual(0x01, self.state.ST)
 
     def when_instruction_is(self, address, instruction):
-        self.when_memory_is(address, (instruction >> 8)
-                            & 0xff, instruction & 0xff)
+        instruction_bytes = [(instruction >> 8) & 0xff, instruction & 0xff]
+        self.when_memory_is(address, *instruction_bytes)
 
     def when_memory_is(self, address, *values):
-        self.state.memory[address:address+len(values)] = values
+        self.state.memory[address:address + len(values)] = values
 
     def when_memory_is_ones(self, start, length):
-        self.state.memory[start:start+length] = [0x01] * length
+        self.state.memory[start:start + length] = [0x01] * length
 
     def when_stack_is(self, *numbers):
         for i, element in enumerate(numbers):
@@ -472,7 +472,7 @@ class CpuTest(unittest.TestCase):
         self.state.I = i
 
     def when_registers_are(self, first, *values):
-        self.state.registers[first:first+len(values)] = values
+        self.state.registers[first:first + len(values)] = values
 
     def when_register_is(self, register, value):
         self.when_registers_are(register, value)
@@ -493,11 +493,11 @@ class CpuTest(unittest.TestCase):
         self.cpu.schip = True
 
     def assert_zeros(self, start, length):
-        for b in self.state.memory[start:start+length]:
+        for b in self.state.memory[start:start + length]:
             self.assertEqual(b, 0)
 
     def assert_ones(self, start, length):
-        for b in self.state.memory[start:start+length]:
+        for b in self.state.memory[start:start + length]:
             self.assertEqual(b, 1)
 
     def assert_stack(self, *expected):
@@ -507,7 +507,7 @@ class CpuTest(unittest.TestCase):
 
     def assert_memory_value(self, address, *values):
         for i, value in enumerate(values):
-            self.assertEqual(value, self.state.memory[address+i])
+            self.assertEqual(value, self.state.memory[address + i])
 
     def assert_registers(self, first, *values):
         for i, value in enumerate(values):
@@ -520,8 +520,23 @@ class CpuTest(unittest.TestCase):
         self.assertEqual(height, self.gpu.lastHeight)
 
 
-STANDARD_FONT = [0xF0, 0x90, 0x90, 0x90, 0xF0, 0x20, 0x60, 0x20, 0x20, 0x70, 0xF0, 0x10, 0xF0, 0x80, 0xF0, 0xF0, 0x10, 0xF0, 0x10, 0xF0, 0x90, 0x90, 0xF0, 0x10, 0x10, 0xF0, 0x80, 0xF0, 0x10, 0xF0, 0xF0, 0x80, 0xF0, 0x90, 0xF0, 0xF0, 0x10, 0x20, 0x40,
-                 0x40, 0xF0, 0x90, 0xF0, 0x90, 0xF0, 0xF0, 0x90, 0xF0, 0x10, 0xF0, 0xF0, 0x90, 0xF0, 0x90, 0x90, 0xE0, 0x90, 0xE0, 0x90, 0xE0, 0xF0, 0x80, 0x80, 0x80, 0xF0, 0xE0, 0x90, 0x90, 0x90, 0xE0, 0xF0, 0x80, 0xF0, 0x80, 0xF0, 0xF0, 0x80, 0xF0, 0x80, 0x80]
+STANDARD_FONT = [
+    0xF0, 0x90, 0x90, 0x90, 0xF0,
+    0x20, 0x60, 0x20, 0x20, 0x70,
+    0xF0, 0x10, 0xF0, 0x80, 0xF0,
+    0xF0, 0x10, 0xF0, 0x10, 0xF0,
+    0x90, 0x90, 0xF0, 0x10, 0x10,
+    0xF0, 0x80, 0xF0, 0x10, 0xF0,
+    0xF0, 0x80, 0xF0, 0x90, 0xF0,
+    0xF0, 0x10, 0x20, 0x40, 0x40,
+    0xF0, 0x90, 0xF0, 0x90, 0xF0,
+    0xF0, 0x90, 0xF0, 0x10, 0xF0,
+    0xF0, 0x90, 0xF0, 0x90, 0x90,
+    0xE0, 0x90, 0xE0, 0x90, 0xE0,
+    0xF0, 0x80, 0x80, 0x80, 0xF0,
+    0xE0, 0x90, 0x90, 0x90, 0xE0,
+    0xF0, 0x80, 0xF0, 0x80, 0xF0,
+    0xF0, 0x80, 0xF0, 0x80, 0x80]
 
 
 class StateTest(unittest.TestCase):

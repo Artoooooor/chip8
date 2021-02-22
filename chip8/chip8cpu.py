@@ -180,7 +180,7 @@ class Chip8Cpu:
         x = self.state.registers[register1] & 0x3f
         y = self.state.registers[register2] & 0x1f
         self.gpu.draw(self.state.I, x, y, mode)
-        
+
     def handle_keyboard(self, register, mode):
         key = self.state.registers[register]
         if mode == 0x9e and self.is_key_pressed(key):
@@ -208,14 +208,17 @@ class Chip8Cpu:
         elif mode == 0x29:
             self.state.I = registerValue * 5
         elif mode == 0x33:
-            self.state.memory[self.state.I: self.state.I + 3] = to_bcd(registerValue)
+            bcd = to_bcd(registerValue)
+            self.state.memory[self.state.I: self.state.I + 3] = bcd
         elif mode == 0x55:
             length = register + 1
-            self.state.memory[self.state.I: self.state.I + length] = self.state.registers[:length]
+            subarray = self.state.registers[:length]
+            self.state.memory[self.state.I: self.state.I + length] = subarray
             self.state.I += register + 1
         elif mode == 0x65:
             length = register + 1
-            self.state.registers[:length] = self.state.memory[self.state.I: self.state.I + length]
+            subarray = self.state.memory[self.state.I: self.state.I + length]
+            self.state.registers[:length] = subarray
             self.state.I += register + 1
         return halted
 
