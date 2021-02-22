@@ -77,7 +77,7 @@ class Chip8GpuTest(unittest.TestCase):
         self.assert_memory_column(1, 0x70)
         self.assertEqual(0x01, self.state.registers[0xf])
 
-    def test_draw_sets_rf_to_0_if_1_not_changed_to_0_x_not_divisible_by_8(self):
+    def test_draw_sets_rf_to_0_if_1_not_changed_to_0_x_not_div_by_8(self):
         self.when_memory_is(0x400, 0xff)
         self.when_memory_is(self.state.screen_buffer_start, 0xf0, 0x0f)
         self.when_register_is(0xf, 0x01)
