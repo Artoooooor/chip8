@@ -2,7 +2,8 @@ import pygame
 from random import randrange
 from sys import argv
 from chip8.blitter import blit_screen
-from chip8.chip8cpu import Chip8State, Chip8Cpu
+from chip8.chip8state import Chip8State
+from chip8.chip8cpu import Chip8Cpu
 from chip8.chip8gpu import Chip8Gpu
 from chip8.config import get_keys_config, keys_config_to_text
 

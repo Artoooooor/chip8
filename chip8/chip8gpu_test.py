@@ -1,5 +1,5 @@
 import unittest
-from chip8.chip8cpu import Chip8State
+from chip8.chip8state import Chip8State
 from chip8.chip8gpu import Chip8Gpu
 
 
