@@ -1,12 +1,12 @@
 import unittest
 import pygame
-from chip8_pygame_integration.config import get_config, KeyBind
+from chip8_pygame_integration.config import get_config, KeyBind, to_text
 
 
 DEFAULT = [KeyBind(pygame.K_o, pygame.KMOD_CTRL, 'some_command')]
 
 
-class Config2LoadTest(unittest.TestCase):
+class ConfigLoadTest(unittest.TestCase):
     def setUp(self):
         self.default = None
 
@@ -71,6 +71,77 @@ class Config2LoadTest(unittest.TestCase):
     def expect_config(self, config):
         result = get_config(self.pattern, self.lines, self.default)
         self.assertEqual(config, result)
+
+
+class ConfigSaveTest(unittest.TestCase):
+    def test_empty_pattern_generates_empty_file(self):
+        self.assertEqual([], to_text((), []))
+
+    def test_one_command_generates_1_line(self):
+        self.when_pattern_is((('comm1',),))
+        self.when_config_is([KeyBind(pygame.K_a, pygame.KMOD_NONE, 'comm1')])
+        self.expect_generated_text(['a'])
+
+    def test_two_commands_generate_line_with_2_elements(self):
+        self.when_pattern_is((('comm1', 'comm2'),))
+        self.when_config_is([KeyBind(pygame.K_a, pygame.KMOD_NONE, 'comm1'),
+                             KeyBind(pygame.K_b, pygame.KMOD_NONE, 'comm2')])
+        self.expect_generated_text(['a b'])
+
+    def test_commands_are_generated_in_order_of_pattern(self):
+        self.when_pattern_is((('comm1', 'comm2'),))
+        self.when_config_is([KeyBind(pygame.K_a, pygame.KMOD_NONE, 'comm2'),
+                             KeyBind(pygame.K_b, pygame.KMOD_NONE, 'comm1')])
+        self.expect_generated_text(['b a'])
+
+    def test_two_lines_generate_2_lines_(self):
+        self.when_pattern_is((('comm1',), ('comm2',),))
+        self.when_config_is([KeyBind(pygame.K_a, pygame.KMOD_NONE, 'comm2'),
+                             KeyBind(pygame.K_b, pygame.KMOD_NONE, 'comm1')])
+        self.expect_generated_text(['b', 'a'])
+
+    def test_KMOD_CTRL_generates_output(self):
+        self.expect_3_mod_versions_handled('ctrl')
+
+    def test_KMOD_SHIFT_generates_output(self):
+        self.expect_3_mod_versions_handled('shift')
+
+    def test_KMOD_ALT_generates_output(self):
+        self.expect_3_mod_versions_handled('alt')
+
+    def test_KMOD_META_generates_output(self):
+        self.expect_3_mod_versions_handled('meta')
+
+    def test_KMOD_CAPS_generates_output(self):
+        self.expect_mod_handled('caps')
+
+    def test_KMOD_NUM_generates_output(self):
+        self.expect_mod_handled('num')
+
+    def test_KMOD_MODE_generates_output(self):
+        self.expect_mod_handled('mode')
+
+    def expect_3_mod_versions_handled(self, baseModName):
+        self.expect_mod_handled(baseModName)
+        self.expect_mod_handled('l' + baseModName)
+        self.expect_mod_handled('r' + baseModName)
+
+    def expect_mod_handled(self, modName):
+        self.when_pattern_is((('comm1',),))
+        fieldName = 'KMOD_' + modName.upper()
+        mod = getattr(pygame, fieldName)
+        self.when_config_is([KeyBind(pygame.K_a, mod, 'comm1')])
+        expected = '{}+a'.format(modName)
+        self.expect_generated_text([expected])
+
+    def when_pattern_is(self, pattern):
+        self.pattern = pattern
+
+    def when_config_is(self, config):
+        self.config = config
+
+    def expect_generated_text(self, text):
+        self.assertEqual(text, to_text(self.pattern, self.config))
 
 
 class KeyBindTest(unittest.TestCase):
