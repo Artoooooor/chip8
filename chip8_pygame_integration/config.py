@@ -12,6 +12,7 @@ PYGAME_KEYS_BY_NUMBER = reverse_dictionary(PYGAME_KEYS)
 PYGAME_KMODS = {k[5:].lower(): v for k, v in PYGAME_ITEMS if 'KMOD_' in k}
 PYGAME_KMODS_BY_NUMBER = reverse_dictionary(PYGAME_KMODS)
 INVALID_LENGTH = 'Line {} \'{}\' has invalid length - use {} entries'
+INVALID_KEY = 'Invalid key in line {}: {}'
 CHIP8_PATTERN = (
     (0x1, 0x2, 0x3, 0xC),
     (0x4, 0x5, 0x6, 0xD),
@@ -29,17 +30,23 @@ def get_config_chip8(lines, default):
 def get_config(pattern, lines, default=None):
     if len(pattern) == 0:
         return []
+
+    line_no = 0
     binds = []
-    i = 0
     for line, commands in zip(lines, pattern):
-        i += 1
+        line_no += 1
         line_length = len(line)
         commands_length = len(commands)
         if line_length >= commands_length:
-            keys = line.split()
-            binds += [get_bind(comm, key) for comm, key in zip(commands, keys)]
+            try:
+                keys = line.split()
+                data = zip(commands, keys)
+                binds += [get_bind(command, key) for command, key in data]
+            except InvalidKeyError as e:
+                print(INVALID_KEY.format(line_no, e.message))
+                return default
         else:
-            print(INVALID_LENGTH.format(i, line, commands_length))
+            print(INVALID_LENGTH.format(line_no, line, commands_length))
             return default
     return binds
 
@@ -69,8 +76,9 @@ def to_key(key):
         return getattr(pygame, 'K_' + key.lower())
     elif hasattr(pygame, 'K_' + key.upper()):
         return getattr(pygame, 'K_' + key.upper())
-    else:
+    elif hasattr(pygame, 'K_' + key):
         return getattr(pygame, 'K_' + key)
+    raise InvalidKeyError(key)
 
 
 def to_text_chip8(config):
@@ -124,3 +132,9 @@ def find_bind(command, config):
         if bind.command == command:
             return bind
     return None
+
+
+class InvalidKeyError(Exception):
+    def __init__(self, message):
+        super(InvalidKeyError, self).__init__(message)
+        self.message = message

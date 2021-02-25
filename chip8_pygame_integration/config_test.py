@@ -65,6 +65,12 @@ class ConfigLoadTest(unittest.TestCase):
         self.when_lines_are(['LCTRL+A'])
         self.expect_config([KeyBind(pygame.K_a, pygame.KMOD_LCTRL, 'comm1')])
 
+    def test_invalid_key_results_in_default(self):
+        self.when_pattern_is((('comm1',),))
+        self.when_lines_are(['F42'])
+        self.when_default_is(DEFAULT)
+        self.expect_config(DEFAULT)
+
     def when_pattern_is(self, pattern):
         self.pattern = pattern
 
@@ -152,3 +158,7 @@ class ConfigSaveTest(unittest.TestCase):
 
     def add_newlines(self, lines):
         return [l + '\n' for l in lines]
+
+
+if __name__ == '__main__':
+    unittest.main()
