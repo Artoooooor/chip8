@@ -65,7 +65,12 @@ def to_modifier(key):
 
 
 def to_key(key):
-    return getattr(pygame, 'K_' + key.lower())
+    if hasattr(pygame, 'K_' + key.lower()):
+        return getattr(pygame, 'K_' + key.lower())
+    elif hasattr(pygame, 'K_' + key.upper()):
+        return getattr(pygame, 'K_' + key.upper())
+    else:
+        return getattr(pygame, 'K_' + key)
 
 
 def to_text_chip8(config):

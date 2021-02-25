@@ -54,6 +54,11 @@ class ConfigLoadTest(unittest.TestCase):
         self.when_lines_are(['a'])
         self.expect_config([KeyBind(pygame.K_a, pygame.KMOD_NONE, 'comm1')])
 
+    def test_lowercase_special_keys_are_parsed(self):
+        self.when_pattern_is((('comm1',),))
+        self.when_lines_are(['space'])
+        self.expect_config([KeyBind(pygame.K_SPACE, pygame.KMOD_NONE, 'comm1')])
+
     def test_uppercase_modifiers_are_parsed(self):
         self.when_pattern_is((('comm1',),))
         self.when_lines_are(['LCTRL+A'])
