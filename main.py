@@ -45,15 +45,17 @@ def save_keys():
         file.writelines(to_text_chip8(key_numbers))
 
 
-surf = pygame.Surface((64, 32))
-bigSurf = pygame.Surface((640, 320))
+screenSurface = pygame.Surface((64, 32))
+scaledSurface = pygame.Surface((640, 320))
+offColour = screenSurface.map_rgb(0, 50, 0)
+onColour = screenSurface.map_rgb(0, 255, 0)
 
 
 def draw_screen(state):
-    arr = pygame.PixelArray(surf)
-    blit_screen(state, surf.map_rgb(0, 50, 0), surf.map_rgb(0, 255, 0), arr)
-    pygame.transform.scale(surf, (640, 320), bigSurf)
-    screen.blit(bigSurf, (80, 20))
+    screenSurfaceArray = pygame.PixelArray(screenSurface)
+    blit_screen(state, offColour, onColour, screenSurfaceArray)
+    pygame.transform.scale(screenSurface, (640, 320), scaledSurface)
+    screen.blit(scaledSurface, (80, 20))
 
 
 def load_program(state, name):
