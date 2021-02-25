@@ -12,6 +12,18 @@ PYGAME_KEYS_BY_NUMBER = reverse_dictionary(PYGAME_KEYS)
 PYGAME_KMODS = {k[5:].lower(): v for k, v in PYGAME_ITEMS if 'KMOD_' in k}
 PYGAME_KMODS_BY_NUMBER = reverse_dictionary(PYGAME_KMODS)
 INVALID_LENGTH = 'Line {} \'{}\' has invalid length - use {} entries'
+CHIP8_PATTERN = (
+    (0x1, 0x2, 0x3, 0xC),
+    (0x4, 0x5, 0x6, 0xD),
+    (0x7, 0x8, 0x9, 0xE),
+    (0xA, 0x0, 0xB, 0xF),
+    ('step',),
+    ('reset',)
+)
+
+
+def get_config_chip8(lines, default):
+    return get_config(CHIP8_PATTERN, lines, default)
 
 
 def get_config(pattern, lines, default=None):
@@ -54,6 +66,10 @@ def to_modifier(key):
 
 def to_key(key):
     return getattr(pygame, 'K_' + key.lower())
+
+
+def to_text_chip8(config):
+    return to_text(CHIP8_PATTERN, config)
 
 
 def to_text(pattern, config):
