@@ -87,7 +87,7 @@ def to_text(pattern, config):
         for command in commands:
             bind = find_bind(command, config)
             chars.append(to_repr(bind))
-        lines.append(' '.join(chars))
+        lines.append(' '.join(chars) + '\n')
     return lines
 
 

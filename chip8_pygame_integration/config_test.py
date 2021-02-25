@@ -57,7 +57,8 @@ class ConfigLoadTest(unittest.TestCase):
     def test_lowercase_special_keys_are_parsed(self):
         self.when_pattern_is((('comm1',),))
         self.when_lines_are(['space'])
-        self.expect_config([KeyBind(pygame.K_SPACE, pygame.KMOD_NONE, 'comm1')])
+        self.expect_config(
+            [KeyBind(pygame.K_SPACE, pygame.KMOD_NONE, 'comm1')])
 
     def test_uppercase_modifiers_are_parsed(self):
         self.when_pattern_is((('comm1',),))
@@ -146,4 +147,7 @@ class ConfigSaveTest(unittest.TestCase):
         self.config = config
 
     def expect_generated_text(self, text):
-        self.assertEqual(text, to_text(self.pattern, self.config))
+        self.assertEqual(self.add_newlines(text), to_text(self.pattern, self.config))
+
+    def add_newlines(self, lines):
+        return [l + '\n' for l in lines]

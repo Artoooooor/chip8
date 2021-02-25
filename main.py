@@ -5,43 +5,44 @@ from chip8.blitter import blit_screen
 from chip8.chip8state import Chip8State
 from chip8.chip8cpu import Chip8Cpu
 from chip8.chip8gpu import Chip8Gpu
-from chip8.config import get_keys_config, keys_config_to_text
+from chip8_pygame_integration.config import get_config_chip8, to_text_chip8
+from chip8_pygame_integration.key_bind import find_command, KeyBind
 
 CYCLES_PER_FRAME = 9
 
-key_numbers = {
-    pygame.K_0: 0x0,
-    pygame.K_1: 0x1,
-    pygame.K_2: 0x2,
-    pygame.K_3: 0x3,
-    pygame.K_4: 0x4,
-    pygame.K_5: 0x5,
-    pygame.K_6: 0x6,
-    pygame.K_7: 0x7,
-    pygame.K_8: 0x8,
-    pygame.K_9: 0x9,
-    pygame.K_a: 0xA,
-    pygame.K_b: 0xB,
-    pygame.K_c: 0xC,
-    pygame.K_d: 0xD,
-    pygame.K_e: 0xE,
-    pygame.K_f: 0xF,
-    pygame.K_SPACE: 'step',
-    pygame.K_p: 'reset',
-}
+key_numbers = [
+    KeyBind(pygame.K_0, pygame.KMOD_NONE, 0x0),
+    KeyBind(pygame.K_1, pygame.KMOD_NONE, 0x1),
+    KeyBind(pygame.K_2, pygame.KMOD_NONE, 0x2),
+    KeyBind(pygame.K_3, pygame.KMOD_NONE, 0x3),
+    KeyBind(pygame.K_4, pygame.KMOD_NONE, 0x4),
+    KeyBind(pygame.K_5, pygame.KMOD_NONE, 0x5),
+    KeyBind(pygame.K_6, pygame.KMOD_NONE, 0x6),
+    KeyBind(pygame.K_7, pygame.KMOD_NONE, 0x7),
+    KeyBind(pygame.K_8, pygame.KMOD_NONE, 0x8),
+    KeyBind(pygame.K_9, pygame.KMOD_NONE, 0x9),
+    KeyBind(pygame.K_a, pygame.KMOD_NONE, 0xA),
+    KeyBind(pygame.K_b, pygame.KMOD_NONE, 0xB),
+    KeyBind(pygame.K_c, pygame.KMOD_NONE, 0xC),
+    KeyBind(pygame.K_d, pygame.KMOD_NONE, 0xD),
+    KeyBind(pygame.K_e, pygame.KMOD_NONE, 0xE),
+    KeyBind(pygame.K_f, pygame.KMOD_NONE, 0xF),
+    KeyBind(pygame.K_SPACE, pygame.KMOD_NONE, 'step'),
+    KeyBind(pygame.K_p, pygame.KMOD_NONE, 'reset'),
+]
 
 
 def load_keys():
     try:
         with open('keys.conf', 'r') as file:
-            return get_keys_config(file.readlines(), key_numbers)
+            return get_config_chip8(file.readlines(), key_numbers)
     except FileNotFoundError:
         return key_numbers
 
 
 def save_keys():
     with open('keys.conf', 'w') as file:
-        file.writelines(keys_config_to_text(key_numbers))
+        file.writelines(to_text_chip8(key_numbers))
 
 
 surf = pygame.Surface((64, 32))
@@ -98,10 +99,8 @@ if len(argv) == 1:
     exit()
 
 
-def get_command(key):
-    if key in key_numbers:
-        return key_numbers[key]
-    return None
+def get_command(event):
+    return find_command(key_numbers, event)
 
 
 def reset():
@@ -135,16 +134,16 @@ while playing:
         if event.type == pygame.QUIT:
             playing = False
         elif event.type == pygame.KEYDOWN:
-            command = get_command(event.key)
+            command = get_command(event)
             if command == 'step':
                 step = True
             elif command == 'reset':
                 reset()
-            else:
-                state.keys[key_numbers[event.key]] = True
+            elif command is not None:
+                state.keys[command] = True
         elif event.type == pygame.KEYUP:
-            command = get_command(event.key)
-            if command in state.keys:
+            command = get_command(event)
+            if command is not None:
                 state.keys[command] = False
     if step:
         simulate_cpu(cpu)
