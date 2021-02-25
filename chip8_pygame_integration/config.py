@@ -1,4 +1,5 @@
 import pygame
+from chip8_pygame_integration.key_bind import KeyBind
 
 
 def reverse_dictionary(dict):
@@ -102,28 +103,3 @@ def find_bind(command, config):
         if bind.command == command:
             return bind
     return None
-
-
-class KeyBind:
-    def __init__(self, key, keyMod, command):
-        self.key = key
-        self.keyMod = keyMod
-        self.command = command
-
-    def __eq__(self, other):
-        keysMatch = self.key == other.key
-        modsMatch = self.keyMod == other.keyMod
-        commandsMatch = self.command == other.command
-        return keysMatch and modsMatch and commandsMatch
-
-    def matches(self, event):
-        return self.key == event.key and self.keyMod == event.mod
-
-    def __str__(self):
-        return self.__get_str(' ')
-
-    def __repr__(self):
-        return self.__get_str(',')
-
-    def __get_str(self, separator):
-        return separator.join([str(self.key), str(self.keyMod), self.command])
