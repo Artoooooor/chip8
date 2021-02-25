@@ -147,7 +147,8 @@ class ConfigSaveTest(unittest.TestCase):
         self.config = config
 
     def expect_generated_text(self, text):
-        self.assertEqual(self.add_newlines(text), to_text(self.pattern, self.config))
+        text = self.add_newlines(text)
+        self.assertEqual(text, to_text(self.pattern, self.config))
 
     def add_newlines(self, lines):
         return [l + '\n' for l in lines]
